@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { ForexSignalsService } from '../services/forex-signals.service';
-import { ForexTensorOpsRequest, ForexTensorOpsResponse } from '../../../core/models/forex.models';
+import { ForexTensorOpsRequest } from '../../../core/models/forex.models';
+import { JobPollingService, JobStatusResponse } from '../../../core/services/job-polling.service';
 
 @Component({
   selector: 'qe-forex-dashboard',
@@ -13,36 +15,43 @@ import { ForexTensorOpsRequest, ForexTensorOpsResponse } from '../../../core/mod
       <h2>EUR/USD Forex Signals</h2>
 
       <div class="controls">
-        <label>Execution ID
-          <input [(ngModel)]="request.execution_id" placeholder="uuid" />
-        </label>
         <label>Volatility Window
           <input type="number" [(ngModel)]="request.volatility_window" min="2" />
         </label>
         <label>Momentum Window
           <input type="number" [(ngModel)]="request.momentum_window" min="2" />
         </label>
-        <button (click)="loadSignals()" [disabled]="loading">
-          {{ loading ? 'Loading…' : 'Run Signals' }}
+        <button (click)="loadSignals()" [disabled]="jobState?.status === 'pending' || jobState?.status === 'running'">
+          {{ isPolling ? '🔄 Running…' : 'Run Signals' }}
         </button>
       </div>
 
       <div *ngIf="error" class="error">{{ error }}</div>
 
-      <div *ngIf="response" class="results">
-        <h3>Results <span [class]="response.status">{{ response.status }}</span></h3>
+      <!-- Job status badge -->
+      <div *ngIf="jobState" class="job-status" [attr.data-status]="jobState.status">
+        <strong>Job {{ jobState.job_id }}</strong>:
+        {{ statusEmoji(jobState.status) }} {{ jobState.status | uppercase }}
+        <span *ngIf="isPolling"> — polling every 3s…</span>
+      </div>
+
+      <!-- Results once complete -->
+      <div *ngIf="jobState?.status === 'success' && jobState?.result" class="results">
+        <h3>Results</h3>
         <table>
-          <tr><th>Volatility Points</th><td>{{ response.volatility_points | number }}</td></tr>
-          <tr><th>Momentum Points</th><td>{{ response.momentum_points | number }}</td></tr>
-          <tr><th>NaN Injected</th><td>{{ response.nan_injected }}</td></tr>
-          <tr><th>NaN Remaining</th><td>{{ response.nan_remaining }}</td></tr>
+          <tr><th>Volatility Points</th><td>{{ jobState!.result!['volatility_points'] | number }}</td></tr>
+          <tr><th>Momentum Points</th> <td>{{ jobState!.result!['momentum_points'] | number }}</td></tr>
+          <tr><th>NaN Injected</th>    <td>{{ jobState!.result!['nan_injected'] }}</td></tr>
+          <tr><th>NaN Remaining</th>   <td>{{ jobState!.result!['nan_remaining'] }}</td></tr>
         </table>
       </div>
     </div>
   `,
 })
-export class ForexDashboardComponent implements OnInit {
+export class ForexDashboardComponent implements OnInit, OnDestroy {
   private readonly service = inject(ForexSignalsService);
+  private readonly polling = inject(JobPollingService);
+  private readonly subs    = new Subscription();
 
   request: ForexTensorOpsRequest = {
     execution_id: crypto.randomUUID(),
@@ -51,18 +60,36 @@ export class ForexDashboardComponent implements OnInit {
     inject_nan_fraction: 0.01,
   };
 
-  response: ForexTensorOpsResponse | null = null;
-  loading = false;
+  jobState: JobStatusResponse | null = null;
+  isPolling = false;
   error: string | null = null;
 
   ngOnInit(): void {}
 
   loadSignals(): void {
-    this.loading = true;
     this.error = null;
-    this.service.getSignals(this.request).subscribe({
-      next: (resp) => { this.response = resp; this.loading = false; },
-      error: (err) => { this.error = err.message; this.loading = false; },
-    });
+    this.request = { ...this.request, execution_id: crypto.randomUUID() };
+    this.subs.add(
+      this.service.getSignals(this.request).subscribe({
+        next: (submitted) => {
+          this.isPolling = true;
+          this.jobState = { job_id: submitted.job_id, task_name: submitted.task_name, status: 'pending', submitted_at: new Date().toISOString() };
+          this.subs.add(
+            this.polling.pollUntilDone(submitted.job_id).subscribe({
+              next:     job => { this.jobState = job; },
+              complete: ()  => { this.isPolling = false; },
+              error:    err => { this.error = err.message; this.isPolling = false; },
+            })
+          );
+        },
+        error: (err) => { this.error = err.message; },
+      })
+    );
   }
+
+  statusEmoji(status: string): string {
+    return ({ pending: '⏳', running: '🔄', success: '✅', failed: '❌' } as Record<string, string>)[status] ?? '❓';
+  }
+
+  ngOnDestroy(): void { this.subs.unsubscribe(); }
 }

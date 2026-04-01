@@ -48,5 +48,26 @@ class TestJobRegistry:
         self._registry.create("task_a")
         self._registry.create("task_a")
         self._registry.create("task_b")
-        results = self._registry.list_by_task("task_a")
+        results = self._registry.list_all(task_name="task_a")
         assert len(results) == 2
+
+    def test_list_all_with_status_filter(self) -> None:
+        j1 = self._registry.create("task_a")
+        j2 = self._registry.create("task_a")
+        self._registry.set_running(j1.id)
+        self._registry.set_success(j1.id, {})
+        results = self._registry.list_all(status=JobStatus.SUCCESS)
+        assert len(results) == 1
+        assert results[0].id == j1.id
+
+    def test_list_all_newest_first(self) -> None:
+        j1 = self._registry.create("task_a")
+        j2 = self._registry.create("task_a")
+        results = self._registry.list_all()
+        # j2 was created after j1 — should appear first
+        assert results[0].id == j2.id
+
+    def test_list_all_no_filter_returns_all(self) -> None:
+        self._registry.create("task_x")
+        self._registry.create("task_y")
+        assert len(self._registry.list_all()) == 2

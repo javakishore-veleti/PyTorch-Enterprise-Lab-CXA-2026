@@ -34,10 +34,9 @@ class TestForexIngestionTask:
         # 60 ticks spread over 1 minute (2 bars at 1-min resampling)
         rows = []
         for sec in range(60):
-            dt = f"20230103 09{sec // 60:02d}{sec % 60:02d}00" if sec < 60 else f"20230103 090100"
             bid = 1.0800 + sec * 0.0001
             ask = bid + 0.0002
-            rows.append(f"20230103 090{sec:04d},{bid:.5f},{ask:.5f}")
+            rows.append(f"20230103 0900{sec:02d},{bid:.5f},{ask:.5f}")
         csv_file.write_text("\n".join(rows))
         return raw_dir
 

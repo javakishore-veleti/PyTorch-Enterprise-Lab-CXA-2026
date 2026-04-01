@@ -60,6 +60,16 @@ class JobRegistry:
     def get(self, job_id: str) -> JobRecord | None:
         return self._jobs.get(job_id)
 
-    def list_by_task(self, task_name: str) -> list[JobRecord]:
+    def list_all(
+        self,
+        task_name: str | None = None,
+        status: "JobStatus | None" = None,
+    ) -> list[JobRecord]:
+        """Return all jobs, newest first. Optionally filter by task_name and/or status."""
         with self._lock:
-            return [j for j in self._jobs.values() if j.task_name == task_name]
+            jobs = list(self._jobs.values())
+        if task_name:
+            jobs = [j for j in jobs if j.task_name == task_name]
+        if status:
+            jobs = [j for j in jobs if j.status == status]
+        return sorted(jobs, key=lambda j: j.submitted_at, reverse=True)

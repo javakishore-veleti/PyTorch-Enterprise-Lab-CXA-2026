@@ -18,7 +18,12 @@ class JobStatusResponse(BaseModel):
     task_name:    str
     status:       JobStatus
     submitted_at: datetime
-    started_at:   datetime | None  = None
-    completed_at: datetime | None  = None
+    started_at:   datetime | None      = None
+    completed_at: datetime | None      = None
     result:       dict[str, Any] | None = None
-    error:        str | None       = None
+    error:        str | None            = None
+
+
+class JobListResponse(BaseModel):
+    jobs:  list[JobStatusResponse]
+    total: int

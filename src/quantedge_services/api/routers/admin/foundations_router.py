@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable, Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status as http_status
 from quantedge_services.api.middleware.nexus.auth import JWTAuthMiddleware
-from quantedge_services.api.schemas.job_schemas import JobSubmittedResponse, JobStatusResponse
+from quantedge_services.api.schemas.job_schemas import JobListResponse, JobSubmittedResponse, JobStatusResponse
 from quantedge_services.api.schemas.foundations.cfpb_schemas import (
     CFPBDatasetRequest, CFPBIngestionRequest, CFPBPreprocessRequest, CFPBTrainRequest,
     CFPBDownloadRequest,
@@ -12,7 +12,7 @@ from quantedge_services.api.schemas.foundations.forex_schemas import (
     ForexAutogradRequest, ForexDownloadRequest, ForexIngestionRequest,
     ForexPreprocessRequest, ForexTensorOpsRequest,
 )
-from quantedge_services.core.jobs import JobRegistry
+from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
 _auth = JWTAuthMiddleware()
@@ -38,6 +38,7 @@ class FoundationsAdminRouter:
         self._register_routes()
 
     def _register_routes(self) -> None:
+        self.router.get("/jobs",          response_model=JobListResponse)(self.list_jobs)
         self.router.get("/jobs/{job_id}", response_model=JobStatusResponse)(self.get_job_status)
 
         self.router.post("/forex/download",   response_model=JobSubmittedResponse, status_code=202)(self.forex_download)
@@ -60,6 +61,22 @@ class FoundationsAdminRouter:
             self._registry.set_success(job_id, result.model_dump())
         except Exception as exc:
             self._registry.set_failed(job_id, str(exc))
+
+    async def list_jobs(
+        self,
+        task_name: str | None = None,
+        status: JobStatus | None = None,
+    ) -> JobListResponse:
+        records = self._registry.list_all(task_name=task_name, status=status)
+        items = [
+            JobStatusResponse(
+                job_id=r.id, task_name=r.task_name, status=r.status,
+                submitted_at=r.submitted_at, started_at=r.started_at,
+                completed_at=r.completed_at, result=r.result, error=r.error,
+            )
+            for r in records
+        ]
+        return JobListResponse(jobs=items, total=len(items))
 
     async def get_job_status(self, job_id: str) -> JobStatusResponse:
         record = self._registry.get(job_id)
