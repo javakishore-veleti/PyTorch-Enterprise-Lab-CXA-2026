@@ -63,6 +63,14 @@ from quantedge_services.services.wfs.model_export.tasks.onnx_validate_task impor
 from quantedge_services.services.wfs.model_export.tasks.tensorrt_export_task import TensorRTExportTask
 from quantedge_services.services.wfs.model_export.tasks.benchmark_task import BenchmarkTask
 from quantedge_services.services.wfs.model_export.export_service import ModelExportService
+from quantedge_services.services.wfs.quantization.tasks.static_quant_task import StaticQuantTask
+from quantedge_services.services.wfs.quantization.tasks.dynamic_quant_task import DynamicQuantTask
+from quantedge_services.services.wfs.quantization.tasks.qat_task import QATTask
+from quantedge_services.services.wfs.quantization.tasks.quant_compare_task import QuantCompareTask
+from quantedge_services.services.wfs.quantization.quantization_service import QuantizationService
+from quantedge_services.services.wfs.model_serving.tasks.model_infer_task import ModelInferTask
+from quantedge_services.services.wfs.model_serving.tasks.serving_benchmark_task import ServingBenchmarkTask
+from quantedge_services.services.wfs.model_serving.serving_service import ModelServingService
 
 
 class DependencyContainer:
@@ -225,6 +233,26 @@ class DependencyContainer:
             benchmark_task=_benchmark,
         )
 
+        # Quantization tasks + service
+        _static_quant = StaticQuantTask()
+        _dynamic_quant = DynamicQuantTask()
+        _qat = QATTask()
+        _quant_compare = QuantCompareTask()
+        self.quantization_service = QuantizationService(
+            static_task=_static_quant,
+            dynamic_task=_dynamic_quant,
+            qat_task=_qat,
+            compare_task=_quant_compare,
+        )
+
+        # Model serving tasks + service
+        _model_infer = ModelInferTask()
+        _serving_benchmark = ServingBenchmarkTask()
+        self.serving_service = ModelServingService(
+            infer_task=_model_infer,
+            benchmark_task=_serving_benchmark,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -240,6 +268,8 @@ class DependencyContainer:
             stackoverflow_service=self.stackoverflow_service,
             domain_adapt_service=self.domain_adapt_service,
             ollama_service=self.ollama_service,
+            quantization_service=self.quantization_service,
+            serving_service=self.serving_service,
             export_service=self.export_service,
         )
 

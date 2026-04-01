@@ -73,6 +73,8 @@ def _make_facade() -> FoundationsServiceFacade:
         stackoverflow_service=MagicMock(),
         domain_adapt_service=MagicMock(),
         ollama_service=MagicMock(),
+        quantization_service=MagicMock(),
+        serving_service=MagicMock(),
         export_service=_make_export_service(),
     )
 

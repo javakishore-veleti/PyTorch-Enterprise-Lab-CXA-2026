@@ -1,0 +1,11 @@
+quantization:
+  backend: "qnnpack"  # qnnpack for CPU/macOS, fbgemm for x86
+  calibration_batches: 10
+  qat_steps: 10
+  output_dir: "data/quantized"
+
+serving:
+  default_format: "eager"
+  num_benchmark_requests: 200
+  batch_size: 1
+  output_dir: "data/serving"

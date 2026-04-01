@@ -76,6 +76,16 @@ from quantedge_services.api.schemas.foundations.domain_adapt_schemas import (
 from quantedge_services.services.wfs.stackoverflow.stackoverflow_service import StackOverflowService
 from quantedge_services.services.wfs.domain_adaptation.domain_adapt_service import DomainAdaptService
 from quantedge_services.services.wfs.ollama_serving.ollama_service import OllamaService
+from quantedge_services.api.schemas.foundations.quantization_schemas import (
+    QuantizeStaticRequest, QuantizeStaticResult,
+    QuantizeDynamicRequest, QuantizeDynamicResult,
+    QuantizeQATRequest, QuantizeQATResult,
+    QuantizeCompareRequest, QuantizeCompareResult,
+    ModelInferRequest, ModelInferResult,
+    ServingBenchmarkRequest, ServingBenchmarkResult,
+)
+from quantedge_services.services.wfs.quantization.quantization_service import QuantizationService
+from quantedge_services.services.wfs.model_serving.serving_service import ModelServingService
 
 
 class FoundationsServiceFacade:
@@ -101,6 +111,8 @@ class FoundationsServiceFacade:
         stackoverflow_service: StackOverflowService,
         domain_adapt_service: DomainAdaptService,
         ollama_service: OllamaService,
+        quantization_service: QuantizationService,
+        serving_service: ModelServingService,
         export_service: ModelExportService | None = None,
     ) -> None:
         self._forex = forex_service
@@ -116,6 +128,8 @@ class FoundationsServiceFacade:
         self._stackoverflow = stackoverflow_service
         self._domain_adapt = domain_adapt_service
         self._ollama = ollama_service
+        self._quantization = quantization_service
+        self._serving = serving_service
         self._export = export_service
         self._logger = StructuredLogger(name=__name__)
 
@@ -299,3 +313,37 @@ class FoundationsServiceFacade:
         self, request: BenchmarkRequest
     ) -> BenchmarkResult:
         return await self._export.benchmark(request)
+
+    # ── Quantization ───────────────────────────────────────────────────────────
+
+    async def submit_quantize_static(
+        self, request: QuantizeStaticRequest
+    ) -> QuantizeStaticResult:
+        return await self._quantization.quantize_static(request)
+
+    async def submit_quantize_dynamic(
+        self, request: QuantizeDynamicRequest
+    ) -> QuantizeDynamicResult:
+        return await self._quantization.quantize_dynamic(request)
+
+    async def submit_quantize_qat(
+        self, request: QuantizeQATRequest
+    ) -> QuantizeQATResult:
+        return await self._quantization.quantize_qat(request)
+
+    async def submit_quantize_compare(
+        self, request: QuantizeCompareRequest
+    ) -> QuantizeCompareResult:
+        return await self._quantization.quantize_compare(request)
+
+    # ── Model Serving ──────────────────────────────────────────────────────────
+
+    async def submit_model_infer(
+        self, request: ModelInferRequest
+    ) -> ModelInferResult:
+        return await self._serving.infer(request)
+
+    async def submit_serving_benchmark(
+        self, request: ServingBenchmarkRequest
+    ) -> ServingBenchmarkResult:
+        return await self._serving.benchmark(request)

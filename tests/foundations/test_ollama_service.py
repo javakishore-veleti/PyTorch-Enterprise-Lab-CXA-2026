@@ -162,6 +162,8 @@ class TestFacadeMethods:
             stackoverflow_service=MagicMock(),
             domain_adapt_service=MagicMock(),
             ollama_service=MagicMock(),
+            quantization_service=MagicMock(),
+            serving_service=MagicMock(),
         )
 
     def test_facade_has_stackoverflow_download_method(self):

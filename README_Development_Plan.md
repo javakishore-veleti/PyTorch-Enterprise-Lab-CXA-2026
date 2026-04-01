@@ -254,11 +254,7 @@
 | **Libraries** | `onnxruntime-gpu`, `fastapi`, `pydantic`, `uvicorn` |
 | **Dataset** | Any prior dataset — focus is the serving pipeline, not new data |
 | **Input** | ONNX model from Week 9 |
-| **Status** | `⬜ Not Started` |
-
-**Intermediate Tasks**
-
-- [ ] Quantize ONNX model to INT8
+| **Status** | `✅ Done` |
 - [ ] Measure accuracy delta before/after quantization
 - [ ] Build FastAPI endpoint with Pydantic input validation
 - [ ] Add timeout middleware (`asyncio`)

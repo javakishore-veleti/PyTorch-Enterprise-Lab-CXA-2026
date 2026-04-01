@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  quantedge-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=info
+    volumes:
+      - ./data:/app/data
+      - ./configs:/app/configs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  quantedge-admin:
+    build: .
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ADMIN_MODE=true
+    depends_on:
+      - quantedge-api

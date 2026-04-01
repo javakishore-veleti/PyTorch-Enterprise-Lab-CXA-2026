@@ -42,6 +42,14 @@ from quantedge_services.api.schemas.foundations.export_schemas import (
     TensorRTExportRequest,
     BenchmarkRequest,
 )
+from quantedge_services.api.schemas.foundations.quantization_schemas import (
+    QuantizeStaticRequest,
+    QuantizeDynamicRequest,
+    QuantizeQATRequest,
+    QuantizeCompareRequest,
+    ModelInferRequest,
+    ServingBenchmarkRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -121,6 +129,12 @@ class FoundationsAdminRouter:
         self.router.post("/export/onnx/validate",    response_model=JobSubmittedResponse, status_code=202)(self.export_onnx_validate)
         self.router.post("/export/tensorrt",         response_model=JobSubmittedResponse, status_code=202)(self.export_tensorrt)
         self.router.post("/export/benchmark",        response_model=JobSubmittedResponse, status_code=202)(self.export_benchmark)
+        self.router.post("/quantize/static",    response_model=JobSubmittedResponse, status_code=202)(self.quantize_static)
+        self.router.post("/quantize/dynamic",   response_model=JobSubmittedResponse, status_code=202)(self.quantize_dynamic)
+        self.router.post("/quantize/qat",       response_model=JobSubmittedResponse, status_code=202)(self.quantize_qat)
+        self.router.post("/quantize/compare",   response_model=JobSubmittedResponse, status_code=202)(self.quantize_compare)
+        self.router.post("/serving/infer",      response_model=JobSubmittedResponse, status_code=202)(self.serving_infer)
+        self.router.post("/serving/benchmark",  response_model=JobSubmittedResponse, status_code=202)(self.serving_benchmark)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -370,4 +384,34 @@ class FoundationsAdminRouter:
     async def export_benchmark(self, request: BenchmarkRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("export_benchmark")
         bg.add_task(self._run_job, job.id, self._facade.submit_benchmark, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def quantize_static(self, request: QuantizeStaticRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("quantize_static")
+        bg.add_task(self._run_job, job.id, self._facade.submit_quantize_static, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def quantize_dynamic(self, request: QuantizeDynamicRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("quantize_dynamic")
+        bg.add_task(self._run_job, job.id, self._facade.submit_quantize_dynamic, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def quantize_qat(self, request: QuantizeQATRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("quantize_qat")
+        bg.add_task(self._run_job, job.id, self._facade.submit_quantize_qat, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def quantize_compare(self, request: QuantizeCompareRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("quantize_compare")
+        bg.add_task(self._run_job, job.id, self._facade.submit_quantize_compare, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def serving_infer(self, request: ModelInferRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("serving_infer")
+        bg.add_task(self._run_job, job.id, self._facade.submit_model_infer, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def serving_benchmark(self, request: ServingBenchmarkRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("serving_benchmark")
+        bg.add_task(self._run_job, job.id, self._facade.submit_serving_benchmark, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
