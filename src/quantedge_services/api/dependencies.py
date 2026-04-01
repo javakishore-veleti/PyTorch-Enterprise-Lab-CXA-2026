@@ -71,6 +71,15 @@ from quantedge_services.services.wfs.quantization.quantization_service import Qu
 from quantedge_services.services.wfs.model_serving.tasks.model_infer_task import ModelInferTask
 from quantedge_services.services.wfs.model_serving.tasks.serving_benchmark_task import ServingBenchmarkTask
 from quantedge_services.services.wfs.model_serving.serving_service import ModelServingService
+from quantedge_services.services.wfs.experiment_tracking.tasks.mlflow_log_task import MLflowLogTask
+from quantedge_services.services.wfs.experiment_tracking.tasks.mlflow_register_task import MLflowRegisterTask
+from quantedge_services.services.wfs.experiment_tracking.tracking_service import ExperimentTrackingService
+from quantedge_services.services.wfs.canary_deployment.tasks.canary_deploy_task import CanaryDeployTask
+from quantedge_services.services.wfs.canary_deployment.tasks.canary_eval_task import CanaryEvalTask
+from quantedge_services.services.wfs.canary_deployment.canary_service import CanaryService
+from quantedge_services.services.wfs.model_registry.tasks.registry_list_task import ModelRegistryListTask
+from quantedge_services.services.wfs.model_registry.tasks.registry_promote_task import ModelRegistryPromoteTask
+from quantedge_services.services.wfs.model_registry.registry_service import ModelRegistryService
 
 
 class DependencyContainer:
@@ -253,6 +262,30 @@ class DependencyContainer:
             benchmark_task=_serving_benchmark,
         )
 
+        # Experiment Tracking tasks + service
+        _mlflow_log = MLflowLogTask()
+        _mlflow_register = MLflowRegisterTask()
+        self.tracking_service = ExperimentTrackingService(
+            log_task=_mlflow_log,
+            register_task=_mlflow_register,
+        )
+
+        # Canary Deployment tasks + service
+        _canary_deploy = CanaryDeployTask()
+        _canary_eval = CanaryEvalTask()
+        self.canary_service = CanaryService(
+            deploy_task=_canary_deploy,
+            eval_task=_canary_eval,
+        )
+
+        # Model Registry tasks + service
+        _registry_list = ModelRegistryListTask()
+        _registry_promote = ModelRegistryPromoteTask()
+        self.registry_service = ModelRegistryService(
+            list_task=_registry_list,
+            promote_task=_registry_promote,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -271,6 +304,9 @@ class DependencyContainer:
             quantization_service=self.quantization_service,
             serving_service=self.serving_service,
             export_service=self.export_service,
+            tracking_service=self.tracking_service,
+            canary_service=self.canary_service,
+            registry_service=self.registry_service,
         )
 
 

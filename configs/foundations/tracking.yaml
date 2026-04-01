@@ -1,0 +1,14 @@
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "quantedge-forex"
+  artifact_location: "./mlruns"
+
+canary:
+  default_traffic_pct: 10.0
+  eval_requests: 100
+  success_threshold: 0.95
+  state_dir: "data/canary"
+
+model_registry:
+  backend: "mlflow"  # mlflow or local
+  max_results: 20

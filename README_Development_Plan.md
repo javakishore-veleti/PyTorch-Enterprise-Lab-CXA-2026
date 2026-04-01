@@ -277,7 +277,7 @@
 | **Libraries** | `mlflow`, `huggingface_hub` |
 | **Dataset** | HuggingFace Hub — model cards as governance artifacts |
 | **Input** | All models trained in prior weeks as versioning subjects |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done · commit 5e9a7a6` |
 
 **Intermediate Tasks**
 

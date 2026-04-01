@@ -50,6 +50,14 @@ from quantedge_services.api.schemas.foundations.quantization_schemas import (
     ModelInferRequest,
     ServingBenchmarkRequest,
 )
+from quantedge_services.api.schemas.foundations.tracking_schemas import (
+    MLflowLogRequest,
+    MLflowRegisterRequest,
+    CanaryDeployRequest,
+    CanaryEvalRequest,
+    ModelRegistryListRequest,
+    ModelRegistryPromoteRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -135,6 +143,12 @@ class FoundationsAdminRouter:
         self.router.post("/quantize/compare",   response_model=JobSubmittedResponse, status_code=202)(self.quantize_compare)
         self.router.post("/serving/infer",      response_model=JobSubmittedResponse, status_code=202)(self.serving_infer)
         self.router.post("/serving/benchmark",  response_model=JobSubmittedResponse, status_code=202)(self.serving_benchmark)
+        self.router.post("/mlflow/log",         response_model=JobSubmittedResponse, status_code=202)(self.mlflow_log)
+        self.router.post("/mlflow/register",    response_model=JobSubmittedResponse, status_code=202)(self.mlflow_register)
+        self.router.post("/canary/deploy",      response_model=JobSubmittedResponse, status_code=202)(self.canary_deploy)
+        self.router.post("/canary/evaluate",    response_model=JobSubmittedResponse, status_code=202)(self.canary_evaluate)
+        self.router.post("/registry/list",      response_model=JobSubmittedResponse, status_code=202)(self.registry_list)
+        self.router.post("/registry/promote",   response_model=JobSubmittedResponse, status_code=202)(self.registry_promote)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -414,4 +428,34 @@ class FoundationsAdminRouter:
     async def serving_benchmark(self, request: ServingBenchmarkRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("serving_benchmark")
         bg.add_task(self._run_job, job.id, self._facade.submit_serving_benchmark, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def mlflow_log(self, request: MLflowLogRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("mlflow_log")
+        bg.add_task(self._run_job, job.id, self._facade.submit_mlflow_log, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def mlflow_register(self, request: MLflowRegisterRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("mlflow_register")
+        bg.add_task(self._run_job, job.id, self._facade.submit_mlflow_register, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def canary_deploy(self, request: CanaryDeployRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("canary_deploy")
+        bg.add_task(self._run_job, job.id, self._facade.submit_canary_deploy, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def canary_evaluate(self, request: CanaryEvalRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("canary_evaluate")
+        bg.add_task(self._run_job, job.id, self._facade.submit_canary_eval, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def registry_list(self, request: ModelRegistryListRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("registry_list")
+        bg.add_task(self._run_job, job.id, self._facade.submit_registry_list, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def registry_promote(self, request: ModelRegistryPromoteRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("registry_promote")
+        bg.add_task(self._run_job, job.id, self._facade.submit_registry_promote, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)

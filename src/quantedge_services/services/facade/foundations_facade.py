@@ -1,5 +1,16 @@
 """FoundationsServiceFacade — single entry point for all Foundations API calls."""
 from __future__ import annotations
+from quantedge_services.api.schemas.foundations.tracking_schemas import (
+    MLflowLogRequest, MLflowLogResult,
+    MLflowRegisterRequest, MLflowRegisterResult,
+    CanaryDeployRequest, CanaryDeployResult,
+    CanaryEvalRequest, CanaryEvalResult,
+    ModelRegistryListRequest, ModelRegistryListResult,
+    ModelRegistryPromoteRequest, ModelRegistryPromoteResult,
+)
+from quantedge_services.services.wfs.experiment_tracking.tracking_service import ExperimentTrackingService
+from quantedge_services.services.wfs.canary_deployment.canary_service import CanaryService
+from quantedge_services.services.wfs.model_registry.registry_service import ModelRegistryService
 from quantedge_services.api.schemas.foundations.export_schemas import (
     TorchScriptExportRequest, TorchScriptExportResult,
     ONNXExportRequest, ONNXExportResult,
@@ -114,6 +125,9 @@ class FoundationsServiceFacade:
         quantization_service: QuantizationService,
         serving_service: ModelServingService,
         export_service: ModelExportService | None = None,
+        tracking_service: ExperimentTrackingService | None = None,
+        canary_service: CanaryService | None = None,
+        registry_service: ModelRegistryService | None = None,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
@@ -131,6 +145,9 @@ class FoundationsServiceFacade:
         self._quantization = quantization_service
         self._serving = serving_service
         self._export = export_service
+        self._tracking = tracking_service
+        self._canary = canary_service
+        self._registry = registry_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -347,3 +364,27 @@ class FoundationsServiceFacade:
         self, request: ServingBenchmarkRequest
     ) -> ServingBenchmarkResult:
         return await self._serving.benchmark(request)
+
+    # ── Experiment Tracking ────────────────────────────────────────────────
+
+    async def submit_mlflow_log(self, request: MLflowLogRequest) -> MLflowLogResult:
+        return await self._tracking.log_run(request)
+
+    async def submit_mlflow_register(self, request: MLflowRegisterRequest) -> MLflowRegisterResult:
+        return await self._tracking.register_model(request)
+
+    # ── Canary Deployment ──────────────────────────────────────────────────
+
+    async def submit_canary_deploy(self, request: CanaryDeployRequest) -> CanaryDeployResult:
+        return await self._canary.deploy(request)
+
+    async def submit_canary_eval(self, request: CanaryEvalRequest) -> CanaryEvalResult:
+        return await self._canary.evaluate(request)
+
+    # ── Model Registry ─────────────────────────────────────────────────────
+
+    async def submit_registry_list(self, request: ModelRegistryListRequest) -> ModelRegistryListResult:
+        return await self._registry.list_models(request)
+
+    async def submit_registry_promote(self, request: ModelRegistryPromoteRequest) -> ModelRegistryPromoteResult:
+        return await self._registry.promote(request)
