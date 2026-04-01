@@ -29,6 +29,13 @@ from quantedge_services.services.wfs.profiling.profiling_service import Profilin
 from quantedge_services.services.wfs.profiling.tasks.dataloader_tune_task import DataloaderTuneTask
 from quantedge_services.services.wfs.profiling.tasks.memory_summary_task import MemorySummaryTask
 from quantedge_services.services.wfs.profiling.tasks.profiler_run_task import ProfilerRunTask
+from quantedge_services.services.wfs.cmapss.cmapss_service import CMAPSSService
+from quantedge_services.services.wfs.cmapss.tasks.download_task import CMAPSSDownloadTask
+from quantedge_services.services.wfs.cmapss.tasks.ingest_task import CMAPSSIngestionTask
+from quantedge_services.services.wfs.forex_attention.forex_attention_service import ForexAttentionService
+from quantedge_services.services.wfs.forex_attention.tasks.attention_train_task import AttentionTrainTask
+from quantedge_services.services.wfs.forex_attention.tasks.attention_eval_task import AttentionEvalTask
+from quantedge_services.services.wfs.forex_attention.tasks.attention_predict_task import AttentionPredictTask
 
 
 class DependencyContainer:
@@ -105,6 +112,24 @@ class DependencyContainer:
             dataloader_task=_dataloader_tune,
         )
 
+        # CMAPSS tasks + service
+        _cmapss_download = CMAPSSDownloadTask()
+        _cmapss_ingest = CMAPSSIngestionTask()
+        self.cmapss_service = CMAPSSService(
+            download_task=_cmapss_download,
+            ingest_task=_cmapss_ingest,
+        )
+
+        # Attention tasks + service
+        _attention_train = AttentionTrainTask()
+        _attention_eval = AttentionEvalTask()
+        _attention_predict = AttentionPredictTask()
+        self.attention_service = ForexAttentionService(
+            train_task=_attention_train,
+            eval_task=_attention_eval,
+            predict_task=_attention_predict,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -112,6 +137,8 @@ class DependencyContainer:
             nn_service=self.nn_service,
             cic_iot_service=self.cic_iot_service,
             profiling_service=self.profiling_service,
+            cmapss_service=self.cmapss_service,
+            attention_service=self.attention_service,
         )
 
 

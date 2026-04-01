@@ -19,6 +19,10 @@ from quantedge_services.api.schemas.foundations.profiler_schemas import (
     CICIoTDownloadRequest, CICIoTIngestionRequest,
     DataloaderTuneRequest, MemorySummaryRequest, ProfilerRunRequest,
 )
+from quantedge_services.api.schemas.foundations.attention_schemas import (
+    CMAPSSDownloadRequest, CMAPSSIngestionRequest,
+    AttentionTrainRequest, AttentionEvalRequest, AttentionPredictRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -69,6 +73,12 @@ class FoundationsAdminRouter:
         self.router.post("/profiler/run",             response_model=JobSubmittedResponse, status_code=202)(self.profiler_run)
         self.router.post("/profiler/memory",          response_model=JobSubmittedResponse, status_code=202)(self.profiler_memory)
         self.router.post("/profiler/tune-dataloader", response_model=JobSubmittedResponse, status_code=202)(self.profiler_tune_dataloader)
+
+        self.router.post("/cmapss/download",    response_model=JobSubmittedResponse, status_code=202)(self.cmapss_download)
+        self.router.post("/cmapss/ingest",      response_model=JobSubmittedResponse, status_code=202)(self.cmapss_ingest)
+        self.router.post("/attention/train",    response_model=JobSubmittedResponse, status_code=202)(self.attention_train)
+        self.router.post("/attention/evaluate", response_model=JobSubmittedResponse, status_code=202)(self.attention_evaluate)
+        self.router.post("/attention/predict",  response_model=JobSubmittedResponse, status_code=202)(self.attention_predict)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -193,4 +203,29 @@ class FoundationsAdminRouter:
     async def profiler_tune_dataloader(self, request: DataloaderTuneRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("profiler_tune_dataloader")
         bg.add_task(self._run_job, job.id, self._facade.tune_dataloader, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def cmapss_download(self, request: CMAPSSDownloadRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("cmapss_download")
+        bg.add_task(self._run_job, job.id, self._facade.cmapss_download, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def cmapss_ingest(self, request: CMAPSSIngestionRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("cmapss_ingest")
+        bg.add_task(self._run_job, job.id, self._facade.cmapss_ingest, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def attention_train(self, request: AttentionTrainRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("attention_train")
+        bg.add_task(self._run_job, job.id, self._facade.attention_train, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def attention_evaluate(self, request: AttentionEvalRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("attention_evaluate")
+        bg.add_task(self._run_job, job.id, self._facade.attention_evaluate, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def attention_predict(self, request: AttentionPredictRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("attention_predict")
+        bg.add_task(self._run_job, job.id, self._facade.attention_predict, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)

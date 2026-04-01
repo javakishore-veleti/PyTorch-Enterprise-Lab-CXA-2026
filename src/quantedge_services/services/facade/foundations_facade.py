@@ -32,6 +32,15 @@ from quantedge_services.core.logging import StructuredLogger
 from quantedge_services.services.wfs.cfpb_complaints.cfpb_service import CFPBComplaintsService
 from quantedge_services.services.wfs.forex_eurusd.forex_service import ForexEURUSDService
 from quantedge_services.services.wfs.forex_neuralnet.forex_nn_service import ForexNeuralNetService
+from quantedge_services.api.schemas.foundations.attention_schemas import (
+    CMAPSSDownloadRequest, CMAPSSDownloadResponse,
+    CMAPSSIngestionRequest, CMAPSSIngestionResponse,
+    AttentionTrainRequest, AttentionTrainResponse,
+    AttentionEvalRequest, AttentionEvalResponse,
+    AttentionPredictRequest, AttentionPredictResponse,
+)
+from quantedge_services.services.wfs.cmapss.cmapss_service import CMAPSSService
+from quantedge_services.services.wfs.forex_attention.forex_attention_service import ForexAttentionService
 
 
 class FoundationsServiceFacade:
@@ -49,12 +58,16 @@ class FoundationsServiceFacade:
         nn_service: ForexNeuralNetService,
         cic_iot_service: CICIoTService,
         profiling_service: ProfilingService,
+        cmapss_service: CMAPSSService,
+        attention_service: ForexAttentionService,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
         self._nn = nn_service
         self._cic_iot = cic_iot_service
         self._profiling = profiling_service
+        self._cmapss = cmapss_service
+        self._attention = attention_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -122,3 +135,22 @@ class FoundationsServiceFacade:
 
     async def tune_dataloader(self, request: DataloaderTuneRequest) -> DataloaderTuneResponse:
         return await self._profiling.tune_dataloader(request)
+
+    # ── CMAPSS ─────────────────────────────────────────────────────────────
+
+    async def cmapss_download(self, request: CMAPSSDownloadRequest) -> CMAPSSDownloadResponse:
+        return await self._cmapss.download(request)
+
+    async def cmapss_ingest(self, request: CMAPSSIngestionRequest) -> CMAPSSIngestionResponse:
+        return await self._cmapss.ingest(request)
+
+    # ── Attention ──────────────────────────────────────────────────────────
+
+    async def attention_train(self, request: AttentionTrainRequest) -> AttentionTrainResponse:
+        return await self._attention.train(request)
+
+    async def attention_evaluate(self, request: AttentionEvalRequest) -> AttentionEvalResponse:
+        return await self._attention.evaluate(request)
+
+    async def attention_predict(self, request: AttentionPredictRequest) -> AttentionPredictResponse:
+        return await self._attention.predict(request)

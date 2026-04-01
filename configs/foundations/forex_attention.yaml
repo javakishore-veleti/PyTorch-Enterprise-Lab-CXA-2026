@@ -1,0 +1,19 @@
+model:
+  d_model: 64
+  nhead: 4
+  num_encoder_layers: 4
+  dim_feedforward: 256
+  dropout: 0.1
+  input_size: 14
+  seq_len: 30
+training:
+  epochs: 50
+  learning_rate: 0.001
+  batch_size: 128
+  patience: 5
+paths:
+  parquet_dir: data/cmapss/parquet
+  checkpoint_dir: data/cmapss/checkpoints
+cmapss:
+  subset: FD001
+  kaggle_slug: behrad3d/nasa-cmaps
