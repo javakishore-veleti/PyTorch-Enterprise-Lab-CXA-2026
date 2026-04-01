@@ -66,8 +66,13 @@ class ForexTensorOpsTask:
         idx = torch.randperm(flat.shape[0])[:n_corrupt]
         flat[idx] = float("nan")
         injected = int(torch.isnan(flat).sum().item())
+        # forward fill
         for i in range(1, flat.shape[0]):
             if torch.isnan(flat[i]):
                 flat[i] = flat[i - 1]
+        # backward fill for leading NaNs (index 0 case)
+        for i in range(flat.shape[0] - 2, -1, -1):
+            if torch.isnan(flat[i]):
+                flat[i] = flat[i + 1]
         remaining = int(torch.isnan(flat).sum().item())
         return injected, remaining
