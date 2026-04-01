@@ -80,6 +80,15 @@ from quantedge_services.services.wfs.canary_deployment.canary_service import Can
 from quantedge_services.services.wfs.model_registry.tasks.registry_list_task import ModelRegistryListTask
 from quantedge_services.services.wfs.model_registry.tasks.registry_promote_task import ModelRegistryPromoteTask
 from quantedge_services.services.wfs.model_registry.registry_service import ModelRegistryService
+from quantedge_services.services.wfs.drift_detection.tasks.data_drift_task import DataDriftTask
+from quantedge_services.services.wfs.drift_detection.tasks.concept_drift_task import ConceptDriftTask
+from quantedge_services.services.wfs.drift_detection.drift_service import DriftDetectionService
+from quantedge_services.services.wfs.monitoring.tasks.prometheus_metrics_task import PrometheusMetricsTask
+from quantedge_services.services.wfs.monitoring.tasks.audit_log_task import AuditLogTask
+from quantedge_services.services.wfs.monitoring.monitoring_service import MonitoringService
+from quantedge_services.services.wfs.adr.tasks.adr_generate_task import ADRGeneratorTask
+from quantedge_services.services.wfs.adr.tasks.adr_list_task import ADRListTask
+from quantedge_services.services.wfs.adr.adr_service import ADRService
 
 
 class DependencyContainer:
@@ -286,6 +295,30 @@ class DependencyContainer:
             promote_task=_registry_promote,
         )
 
+        # Drift Detection tasks + service
+        _data_drift = DataDriftTask()
+        _concept_drift = ConceptDriftTask()
+        self.drift_service = DriftDetectionService(
+            data_drift_task=_data_drift,
+            concept_drift_task=_concept_drift,
+        )
+
+        # Monitoring tasks + service
+        _prometheus_metrics = PrometheusMetricsTask(job_registry=self.job_registry)
+        _audit_log = AuditLogTask()
+        self.monitoring_service = MonitoringService(
+            metrics_task=_prometheus_metrics,
+            audit_task=_audit_log,
+        )
+
+        # ADR tasks + service
+        _adr_generate = ADRGeneratorTask()
+        _adr_list = ADRListTask()
+        self.adr_service = ADRService(
+            generate_task=_adr_generate,
+            list_task=_adr_list,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -307,6 +340,9 @@ class DependencyContainer:
             tracking_service=self.tracking_service,
             canary_service=self.canary_service,
             registry_service=self.registry_service,
+            drift_service=self.drift_service,
+            monitoring_service=self.monitoring_service,
+            adr_service=self.adr_service,
         )
 
 

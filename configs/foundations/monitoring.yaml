@@ -1,0 +1,16 @@
+drift_detection:
+  psi_threshold: 0.2
+  ks_threshold: 0.05
+  reference_data_dir: "data/reference"
+  monitoring_window: 100
+
+prometheus:
+  metrics_path: "data/metrics/prometheus_snapshot.json"
+  scrape_interval_seconds: 15
+
+audit:
+  log_path: "data/audit/audit_log.jsonl"
+  retention_days: 90
+
+adr:
+  output_dir: "docs/adr"

@@ -4,6 +4,11 @@ from typing import Callable, Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status as http_status
 from quantedge_services.api.middleware.nexus.auth import JWTAuthMiddleware
 from quantedge_services.api.schemas.job_schemas import JobListResponse, JobSubmittedResponse, JobStatusResponse
+from quantedge_services.api.schemas.foundations.monitoring_schemas import (
+    DataDriftRequest, ConceptDriftRequest,
+    PrometheusMetricsRequest, AuditLogRequest,
+    ADRGenerateRequest, ADRListRequest,
+)
 from quantedge_services.api.schemas.foundations.cfpb_schemas import (
     CFPBDatasetRequest, CFPBIngestionRequest, CFPBPreprocessRequest, CFPBTrainRequest,
     CFPBDownloadRequest,
@@ -149,6 +154,12 @@ class FoundationsAdminRouter:
         self.router.post("/canary/evaluate",    response_model=JobSubmittedResponse, status_code=202)(self.canary_evaluate)
         self.router.post("/registry/list",      response_model=JobSubmittedResponse, status_code=202)(self.registry_list)
         self.router.post("/registry/promote",   response_model=JobSubmittedResponse, status_code=202)(self.registry_promote)
+        self.router.post("/drift/data",          response_model=JobSubmittedResponse, status_code=202)(self.drift_data)
+        self.router.post("/drift/concept",       response_model=JobSubmittedResponse, status_code=202)(self.drift_concept)
+        self.router.post("/monitoring/metrics",  response_model=JobSubmittedResponse, status_code=202)(self.monitoring_metrics)
+        self.router.post("/monitoring/audit",    response_model=JobSubmittedResponse, status_code=202)(self.monitoring_audit)
+        self.router.post("/adr/generate",        response_model=JobSubmittedResponse, status_code=202)(self.adr_generate)
+        self.router.post("/adr/list",            response_model=JobSubmittedResponse, status_code=202)(self.adr_list)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -459,3 +470,34 @@ class FoundationsAdminRouter:
         job = self._registry.create("registry_promote")
         bg.add_task(self._run_job, job.id, self._facade.submit_registry_promote, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def drift_data(self, request: DataDriftRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("drift_data")
+        bg.add_task(self._run_job, job.id, self._facade.submit_data_drift, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def drift_concept(self, request: ConceptDriftRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("drift_concept")
+        bg.add_task(self._run_job, job.id, self._facade.submit_concept_drift, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def monitoring_metrics(self, request: PrometheusMetricsRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("monitoring_metrics")
+        bg.add_task(self._run_job, job.id, self._facade.submit_prometheus_metrics, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def monitoring_audit(self, request: AuditLogRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("monitoring_audit")
+        bg.add_task(self._run_job, job.id, self._facade.submit_audit_log, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def adr_generate(self, request: ADRGenerateRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("adr_generate")
+        bg.add_task(self._run_job, job.id, self._facade.submit_adr_generate, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def adr_list(self, request: ADRListRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("adr_list")
+        bg.add_task(self._run_job, job.id, self._facade.submit_adr_list, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+

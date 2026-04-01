@@ -1,5 +1,16 @@
 """FoundationsServiceFacade — single entry point for all Foundations API calls."""
 from __future__ import annotations
+from quantedge_services.api.schemas.foundations.monitoring_schemas import (
+    DataDriftRequest, DataDriftResult,
+    ConceptDriftRequest, ConceptDriftResult,
+    PrometheusMetricsRequest, PrometheusMetricsResult,
+    AuditLogRequest, AuditLogResult,
+    ADRGenerateRequest, ADRGenerateResult,
+    ADRListRequest, ADRListResult,
+)
+from quantedge_services.services.wfs.drift_detection.drift_service import DriftDetectionService
+from quantedge_services.services.wfs.monitoring.monitoring_service import MonitoringService
+from quantedge_services.services.wfs.adr.adr_service import ADRService
 from quantedge_services.api.schemas.foundations.tracking_schemas import (
     MLflowLogRequest, MLflowLogResult,
     MLflowRegisterRequest, MLflowRegisterResult,
@@ -128,6 +139,9 @@ class FoundationsServiceFacade:
         tracking_service: ExperimentTrackingService | None = None,
         canary_service: CanaryService | None = None,
         registry_service: ModelRegistryService | None = None,
+        drift_service: DriftDetectionService | None = None,
+        monitoring_service: MonitoringService | None = None,
+        adr_service: ADRService | None = None,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
@@ -148,6 +162,9 @@ class FoundationsServiceFacade:
         self._tracking = tracking_service
         self._canary = canary_service
         self._registry = registry_service
+        self._drift = drift_service
+        self._monitoring = monitoring_service
+        self._adr = adr_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -388,3 +405,28 @@ class FoundationsServiceFacade:
 
     async def submit_registry_promote(self, request: ModelRegistryPromoteRequest) -> ModelRegistryPromoteResult:
         return await self._registry.promote(request)
+
+    # ── Drift Detection ────────────────────────────────────────────────────
+
+    async def submit_data_drift(self, request: DataDriftRequest) -> DataDriftResult:
+        return await self._drift.detect_data_drift(request)
+
+    async def submit_concept_drift(self, request: ConceptDriftRequest) -> ConceptDriftResult:
+        return await self._drift.detect_concept_drift(request)
+
+    # ── Monitoring ─────────────────────────────────────────────────────────
+
+    async def submit_prometheus_metrics(self, request: PrometheusMetricsRequest) -> PrometheusMetricsResult:
+        return await self._monitoring.collect_metrics(request)
+
+    async def submit_audit_log(self, request: AuditLogRequest) -> AuditLogResult:
+        return await self._monitoring.log_audit_event(request)
+
+    # ── ADR ────────────────────────────────────────────────────────────────
+
+    async def submit_adr_generate(self, request: ADRGenerateRequest) -> ADRGenerateResult:
+        return await self._adr.generate_adrs(request)
+
+    async def submit_adr_list(self, request: ADRListRequest) -> ADRListResult:
+        return await self._adr.list_adrs(request)
+

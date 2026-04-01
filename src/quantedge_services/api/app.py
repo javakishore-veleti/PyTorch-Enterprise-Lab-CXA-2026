@@ -45,6 +45,10 @@ class QuantEdgeApp:
         async def health() -> dict:
             return {"status": "ok", "service": "quantedge-services"}
 
+        @app.get("/metrics", tags=["Monitoring"], response_class=__import__("fastapi").responses.PlainTextResponse)
+        async def prometheus_metrics() -> str:
+            return container.monitoring_service.prometheus_text()
+
     @property
     def app(self) -> FastAPI:
         return self._app
