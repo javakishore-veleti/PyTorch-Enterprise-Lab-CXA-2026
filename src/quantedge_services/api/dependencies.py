@@ -36,6 +36,10 @@ from quantedge_services.services.wfs.forex_attention.forex_attention_service imp
 from quantedge_services.services.wfs.forex_attention.tasks.attention_train_task import AttentionTrainTask
 from quantedge_services.services.wfs.forex_attention.tasks.attention_eval_task import AttentionEvalTask
 from quantedge_services.services.wfs.forex_attention.tasks.attention_predict_task import AttentionPredictTask
+from quantedge_services.services.wfs.attention_viz.tasks.attention_extract_task import AttentionExtractTask
+from quantedge_services.services.wfs.attention_viz.tasks.attention_heatmap_task import AttentionHeatmapTask
+from quantedge_services.services.wfs.attention_viz.tasks.arch_decision_task import ArchDecisionTask
+from quantedge_services.services.wfs.attention_viz.attention_viz_service import AttentionVizService
 
 
 class DependencyContainer:
@@ -130,6 +134,16 @@ class DependencyContainer:
             predict_task=_attention_predict,
         )
 
+        # Attention viz tasks + service
+        _attention_extract = AttentionExtractTask()
+        _attention_heatmap = AttentionHeatmapTask()
+        _arch_decision = ArchDecisionTask()
+        self.attention_viz_service = AttentionVizService(
+            extract_task=_attention_extract,
+            heatmap_task=_attention_heatmap,
+            arch_decision_task=_arch_decision,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -139,6 +153,7 @@ class DependencyContainer:
             profiling_service=self.profiling_service,
             cmapss_service=self.cmapss_service,
             attention_service=self.attention_service,
+            attention_viz_service=self.attention_viz_service,
         )
 
 

@@ -41,6 +41,12 @@ from quantedge_services.api.schemas.foundations.attention_schemas import (
 )
 from quantedge_services.services.wfs.cmapss.cmapss_service import CMAPSSService
 from quantedge_services.services.wfs.forex_attention.forex_attention_service import ForexAttentionService
+from quantedge_services.api.schemas.foundations.viz_schemas import (
+    AttentionExtractRequest, AttentionExtractResponse,
+    AttentionHeatmapRequest, AttentionHeatmapResponse,
+    ArchDecisionRequest, ArchDecisionResponse,
+)
+from quantedge_services.services.wfs.attention_viz.attention_viz_service import AttentionVizService
 
 
 class FoundationsServiceFacade:
@@ -60,6 +66,7 @@ class FoundationsServiceFacade:
         profiling_service: ProfilingService,
         cmapss_service: CMAPSSService,
         attention_service: ForexAttentionService,
+        attention_viz_service: AttentionVizService,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
@@ -68,6 +75,7 @@ class FoundationsServiceFacade:
         self._profiling = profiling_service
         self._cmapss = cmapss_service
         self._attention = attention_service
+        self._attention_viz = attention_viz_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -154,3 +162,14 @@ class FoundationsServiceFacade:
 
     async def attention_predict(self, request: AttentionPredictRequest) -> AttentionPredictResponse:
         return await self._attention.predict(request)
+
+    # ── Attention Viz ──────────────────────────────────────────────────────
+
+    async def attention_extract(self, request: AttentionExtractRequest) -> AttentionExtractResponse:
+        return await self._attention_viz.extract_weights(request)
+
+    async def attention_heatmap(self, request: AttentionHeatmapRequest) -> AttentionHeatmapResponse:
+        return await self._attention_viz.generate_heatmaps(request)
+
+    async def architecture_decision(self, request: ArchDecisionRequest) -> ArchDecisionResponse:
+        return await self._attention_viz.architecture_decision(request)

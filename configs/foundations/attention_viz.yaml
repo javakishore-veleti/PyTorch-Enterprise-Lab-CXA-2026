@@ -1,0 +1,8 @@
+heatmap:
+  output_dir: data/attention_viz
+  colormap: viridis
+  figure_dpi: 100
+  figsize: [8, 6]
+architecture_decision:
+  task_type: time_series_regression
+  output_type: scalar

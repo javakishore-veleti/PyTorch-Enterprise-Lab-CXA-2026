@@ -23,6 +23,9 @@ from quantedge_services.api.schemas.foundations.attention_schemas import (
     CMAPSSDownloadRequest, CMAPSSIngestionRequest,
     AttentionTrainRequest, AttentionEvalRequest, AttentionPredictRequest,
 )
+from quantedge_services.api.schemas.foundations.viz_schemas import (
+    AttentionExtractRequest, AttentionHeatmapRequest, ArchDecisionRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -79,6 +82,9 @@ class FoundationsAdminRouter:
         self.router.post("/attention/train",    response_model=JobSubmittedResponse, status_code=202)(self.attention_train)
         self.router.post("/attention/evaluate", response_model=JobSubmittedResponse, status_code=202)(self.attention_evaluate)
         self.router.post("/attention/predict",  response_model=JobSubmittedResponse, status_code=202)(self.attention_predict)
+        self.router.post("/attention/extract-weights", response_model=JobSubmittedResponse, status_code=202)(self.attention_extract_weights)
+        self.router.post("/attention/heatmap", response_model=JobSubmittedResponse, status_code=202)(self.attention_heatmap)
+        self.router.post("/attention/arch-decision", response_model=JobSubmittedResponse, status_code=202)(self.attention_arch_decision)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -228,4 +234,19 @@ class FoundationsAdminRouter:
     async def attention_predict(self, request: AttentionPredictRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("attention_predict")
         bg.add_task(self._run_job, job.id, self._facade.attention_predict, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def attention_extract_weights(self, request: AttentionExtractRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("attention_extract_weights")
+        bg.add_task(self._run_job, job.id, self._facade.attention_extract, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def attention_heatmap(self, request: AttentionHeatmapRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("attention_heatmap")
+        bg.add_task(self._run_job, job.id, self._facade.attention_heatmap, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def attention_arch_decision(self, request: ArchDecisionRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("attention_arch_decision")
+        bg.add_task(self._run_job, job.id, self._facade.architecture_decision, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
