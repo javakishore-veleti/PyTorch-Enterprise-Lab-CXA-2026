@@ -10,6 +10,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>🚦 Canary Deployment</h1>
+        <p>Probabilistic traffic splitting with auto promote/rollback · Week 11</p>
+      </div>
     <div class="qe-panel">
       <h2>🚦 Canary Deployment (Week 11)</h2>
       <form [formGroup]="form">

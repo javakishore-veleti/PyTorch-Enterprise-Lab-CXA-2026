@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>📡 Drift Detection &amp; Monitoring</h1>
+        <p>PSI + KS-test data drift · Prometheus metrics · ADR generation · Week 12</p>
+      </div>
     <div class="qe-panel">
       <h2>📡 Drift & Monitoring (Week 12)</h2>
       <form [formGroup]="form">

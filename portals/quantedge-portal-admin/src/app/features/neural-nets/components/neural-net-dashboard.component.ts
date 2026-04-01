@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>🧠 Neural Networks</h1>
+        <p>Train MLP &amp; LSTM models on Forex EUR/USD data · Week 3</p>
+      </div>
     <div class="qe-panel">
       <h2>🧠 Neural Networks (Week 3)</h2>
       <form [formGroup]="form">

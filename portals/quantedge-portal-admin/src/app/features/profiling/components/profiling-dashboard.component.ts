@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>⚡ Performance Profiling</h1>
+        <p>PyTorch profiler, TensorBoard traces &amp; CIC-IoT dataset · Week 4</p>
+      </div>
     <div class="qe-panel">
       <h2>⚡ Profiling (Week 4)</h2>
       <form [formGroup]="form">

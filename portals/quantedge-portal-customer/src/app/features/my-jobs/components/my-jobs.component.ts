@@ -57,10 +57,10 @@ interface JobRow { job_id: string; task_name: string; status: string; created_at
   `,
   styles: [`
     .jobs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .jobs-table th { text-align: left; color: #718096; font-weight: 600; padding: 8px 12px; border-bottom: 1px solid #2d3748; font-size: 11px; text-transform: uppercase; }
-    .jobs-table td { padding: 10px 12px; border-bottom: 1px solid #1a1d27; color: #e2e8f0; }
-    .jobs-table tr:hover td { background: #1e2130; }
-    .expand-row td { background: #0d1117; }
+    .jobs-table th { text-align: left; background: #F8FAFC; color: #374151; font-weight: 700; padding: 10px 16px; border-bottom: 2px solid #E2E8F0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .jobs-table td { padding: 12px 16px; border-bottom: 1px solid #F1F5F9; color: #374151; }
+    .jobs-table tr:hover td { background: #EFF6FF; }
+    .expand-row td { background: #F8FAFC; }
   `],
 })
 export class MyJobsComponent implements OnInit, OnDestroy {

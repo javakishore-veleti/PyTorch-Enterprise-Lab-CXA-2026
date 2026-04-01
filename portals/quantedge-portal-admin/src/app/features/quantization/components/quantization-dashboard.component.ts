@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>🗜 Model Quantization</h1>
+        <p>Static INT8 · Dynamic INT8 · QAT · Serving benchmark · Week 10</p>
+      </div>
     <div class="qe-panel">
       <h2>🗜 Quantization + Serving (Week 10)</h2>
       <form [formGroup]="form">

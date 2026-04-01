@@ -12,6 +12,11 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>🏦 CFPB Pipeline</h1>
+        <p>Consumer Financial Protection Bureau complaints dataset · Week 2</p>
+      </div>
     <div class="banking-data">
       <h2>CFPB Complaints Pipeline (Week 2)</h2>
 
@@ -41,6 +46,7 @@ import {
       </div>
 
       <div *ngIf="error" class="error">{{ error }}</div>
+    </div>
     </div>
   `,
 })

@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>🔧 LoRA Fine-Tuning</h1>
+        <p>Parameter-efficient fine-tuning with Low-Rank Adaptation · Week 7</p>
+      </div>
     <div class="qe-panel">
       <h2>🔧 LoRA Fine-Tuning (Week 7)</h2>
       <form [formGroup]="form">

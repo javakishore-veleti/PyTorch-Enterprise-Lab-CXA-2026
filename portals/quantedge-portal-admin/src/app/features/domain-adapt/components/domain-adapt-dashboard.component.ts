@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>🤖 Domain Adaptation &amp; Ollama</h1>
+        <p>PEFT domain adaptation + local Ollama LLM serving · Week 8</p>
+      </div>
     <div class="qe-panel">
       <h2>🤖 Domain Adapt + Ollama (Week 8)</h2>
       <form [formGroup]="form">

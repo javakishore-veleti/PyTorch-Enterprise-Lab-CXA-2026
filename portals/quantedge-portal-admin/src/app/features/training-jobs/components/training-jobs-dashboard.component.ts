@@ -18,6 +18,11 @@ interface StepState {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>📋 All Jobs</h1>
+        <p>Real-time async job queue — all 12 weeks of QuantEdge pipelines</p>
+      </div>
     <div class="training-jobs">
       <h2>Training Jobs — Foundations</h2>
 

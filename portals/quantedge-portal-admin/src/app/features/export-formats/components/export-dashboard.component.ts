@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>📦 Model Export Formats</h1>
+        <p>TorchScript trace · ONNX opset 17 · TensorRT · Inference benchmark · Week 9</p>
+      </div>
     <div class="qe-panel">
       <h2>📦 Export Formats (Week 9)</h2>
       <form [formGroup]="form">

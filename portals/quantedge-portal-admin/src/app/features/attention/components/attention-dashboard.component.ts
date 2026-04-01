@@ -9,6 +9,11 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
+    <div style="max-width:1100px">
+      <div class="page-header">
+        <h1>👁 Attention Transformer</h1>
+        <p>Custom multi-head attention from scratch with heatmap visualization · Weeks 5-6</p>
+      </div>
     <div class="qe-panel">
       <h2>👁 Attention / Transformer (Week 5-6)</h2>
       <form [formGroup]="form">
