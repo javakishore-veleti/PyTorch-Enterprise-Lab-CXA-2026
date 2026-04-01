@@ -1,5 +1,14 @@
 """FoundationsServiceFacade — single entry point for all Foundations API calls."""
 from __future__ import annotations
+from quantedge_services.api.schemas.foundations.profiler_schemas import (
+    CICIoTDownloadRequest, CICIoTDownloadResponse,
+    CICIoTIngestionRequest, CICIoTIngestionResponse,
+    DataloaderTuneRequest, DataloaderTuneResponse,
+    MemorySummaryRequest, MemorySummaryResponse,
+    ProfilerRunRequest, ProfilerRunResponse,
+)
+from quantedge_services.services.wfs.cic_iot.cic_iot_service import CICIoTService
+from quantedge_services.services.wfs.profiling.profiling_service import ProfilingService
 from quantedge_services.api.schemas.foundations.cfpb_schemas import (
     CFPBDatasetRequest, CFPBDatasetResponse,
     CFPBDownloadRequest, CFPBDownloadResponse,
@@ -38,10 +47,14 @@ class FoundationsServiceFacade:
         forex_service: ForexEURUSDService,
         cfpb_service: CFPBComplaintsService,
         nn_service: ForexNeuralNetService,
+        cic_iot_service: CICIoTService,
+        profiling_service: ProfilingService,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
         self._nn = nn_service
+        self._cic_iot = cic_iot_service
+        self._profiling = profiling_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -90,3 +103,22 @@ class FoundationsServiceFacade:
 
     async def nn_predict(self, request: NNPredictRequest) -> NNPredictResponse:
         return await self._nn.predict(request)
+
+    # ── CIC IoT ────────────────────────────────────────────────────────────
+
+    async def cic_iot_download(self, request: CICIoTDownloadRequest) -> CICIoTDownloadResponse:
+        return await self._cic_iot.download(request)
+
+    async def cic_iot_ingest(self, request: CICIoTIngestionRequest) -> CICIoTIngestionResponse:
+        return await self._cic_iot.ingest(request)
+
+    # ── Profiling ──────────────────────────────────────────────────────────
+
+    async def profiler_run(self, request: ProfilerRunRequest) -> ProfilerRunResponse:
+        return await self._profiling.run_profiler(request)
+
+    async def memory_summary(self, request: MemorySummaryRequest) -> MemorySummaryResponse:
+        return await self._profiling.memory_summary(request)
+
+    async def tune_dataloader(self, request: DataloaderTuneRequest) -> DataloaderTuneResponse:
+        return await self._profiling.tune_dataloader(request)

@@ -15,6 +15,10 @@ from quantedge_services.api.schemas.foundations.forex_schemas import (
 from quantedge_services.api.schemas.foundations.nn_schemas import (
     NNTrainRequest, NNEvalRequest, NNPredictRequest,
 )
+from quantedge_services.api.schemas.foundations.profiler_schemas import (
+    CICIoTDownloadRequest, CICIoTIngestionRequest,
+    DataloaderTuneRequest, MemorySummaryRequest, ProfilerRunRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -59,6 +63,12 @@ class FoundationsAdminRouter:
         self.router.post("/nn/train",    response_model=JobSubmittedResponse, status_code=202)(self.nn_train)
         self.router.post("/nn/evaluate", response_model=JobSubmittedResponse, status_code=202)(self.nn_evaluate)
         self.router.post("/nn/predict",  response_model=JobSubmittedResponse, status_code=202)(self.nn_predict)
+
+        self.router.post("/cic-iot/download",         response_model=JobSubmittedResponse, status_code=202)(self.cic_iot_download)
+        self.router.post("/cic-iot/ingest",           response_model=JobSubmittedResponse, status_code=202)(self.cic_iot_ingest)
+        self.router.post("/profiler/run",             response_model=JobSubmittedResponse, status_code=202)(self.profiler_run)
+        self.router.post("/profiler/memory",          response_model=JobSubmittedResponse, status_code=202)(self.profiler_memory)
+        self.router.post("/profiler/tune-dataloader", response_model=JobSubmittedResponse, status_code=202)(self.profiler_tune_dataloader)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -158,4 +168,29 @@ class FoundationsAdminRouter:
     async def nn_predict(self, request: NNPredictRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("nn_predict")
         bg.add_task(self._run_job, job.id, self._facade.nn_predict, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def cic_iot_download(self, request: CICIoTDownloadRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("cic_iot_download")
+        bg.add_task(self._run_job, job.id, self._facade.cic_iot_download, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def cic_iot_ingest(self, request: CICIoTIngestionRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("cic_iot_ingest")
+        bg.add_task(self._run_job, job.id, self._facade.cic_iot_ingest, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def profiler_run(self, request: ProfilerRunRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("profiler_run")
+        bg.add_task(self._run_job, job.id, self._facade.profiler_run, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def profiler_memory(self, request: MemorySummaryRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("profiler_memory")
+        bg.add_task(self._run_job, job.id, self._facade.memory_summary, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def profiler_tune_dataloader(self, request: DataloaderTuneRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("profiler_tune_dataloader")
+        bg.add_task(self._run_job, job.id, self._facade.tune_dataloader, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)

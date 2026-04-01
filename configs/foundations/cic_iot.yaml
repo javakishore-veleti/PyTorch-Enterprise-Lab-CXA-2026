@@ -1,0 +1,8 @@
+dataset:
+  kaggle_slug: "dhoogla/ciciot2023"
+  label_col: "label"
+paths:
+  raw_dir: data/cic_iot/raw
+  parquet_dir: data/cic_iot/parquet
+ingest:
+  nrows: null

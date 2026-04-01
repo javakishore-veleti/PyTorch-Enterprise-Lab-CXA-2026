@@ -12,6 +12,9 @@ from quantedge_services.services.wfs.cfpb_complaints.tasks.download_task import 
 from quantedge_services.services.wfs.cfpb_complaints.tasks.ingest_task import CFPBIngestionTask
 from quantedge_services.services.wfs.cfpb_complaints.tasks.preprocess_task import CFPBPreprocessTask
 from quantedge_services.services.wfs.cfpb_complaints.tasks.training_task import CFPBTrainingTask
+from quantedge_services.services.wfs.cic_iot.cic_iot_service import CICIoTService
+from quantedge_services.services.wfs.cic_iot.tasks.download_task import CICIoTDownloadTask
+from quantedge_services.services.wfs.cic_iot.tasks.ingest_task import CICIoTIngestionTask
 from quantedge_services.services.wfs.forex_eurusd.forex_service import ForexEURUSDService
 from quantedge_services.services.wfs.forex_eurusd.tasks.autograd_task import ForexAutogradTask
 from quantedge_services.services.wfs.forex_eurusd.tasks.download_task import ForexDataDownloadTask
@@ -22,6 +25,10 @@ from quantedge_services.services.wfs.forex_neuralnet.forex_nn_service import For
 from quantedge_services.services.wfs.forex_neuralnet.tasks.eval_task import NNEvalTask
 from quantedge_services.services.wfs.forex_neuralnet.tasks.predict_task import NNPredictTask
 from quantedge_services.services.wfs.forex_neuralnet.tasks.train_task import NNTrainTask
+from quantedge_services.services.wfs.profiling.profiling_service import ProfilingService
+from quantedge_services.services.wfs.profiling.tasks.dataloader_tune_task import DataloaderTuneTask
+from quantedge_services.services.wfs.profiling.tasks.memory_summary_task import MemorySummaryTask
+from quantedge_services.services.wfs.profiling.tasks.profiler_run_task import ProfilerRunTask
 
 
 class DependencyContainer:
@@ -80,11 +87,31 @@ class DependencyContainer:
             predict_task=_nn_predict,
         )
 
+        # CIC IoT tasks + service
+        _cic_iot_download = CICIoTDownloadTask()
+        _cic_iot_ingest = CICIoTIngestionTask()
+        self.cic_iot_service = CICIoTService(
+            download_task=_cic_iot_download,
+            ingest_task=_cic_iot_ingest,
+        )
+
+        # Profiling tasks + service
+        _profiler_run = ProfilerRunTask()
+        _memory_summary = MemorySummaryTask()
+        _dataloader_tune = DataloaderTuneTask()
+        self.profiling_service = ProfilingService(
+            profiler_task=_profiler_run,
+            memory_task=_memory_summary,
+            dataloader_task=_dataloader_tune,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
             cfpb_service=self.cfpb_service,
             nn_service=self.nn_service,
+            cic_iot_service=self.cic_iot_service,
+            profiling_service=self.profiling_service,
         )
 
 
