@@ -10,6 +10,17 @@ import {
 } from '../models/forex.models';
 import { CFPBPredictRequest, CFPBPredictResponse } from '../models/cfpb.models';
 
+// Shared job types
+export interface JobSubmittedResponse { job_id: string; task_name: string; status: string; message: string; }
+export interface JobStatusResponse { job_id: string; task_name: string; status: string; result: any; error: string | null; created_at: string; updated_at: string; }
+
+// Model inference
+export interface ModelInferRequest { model_path?: string; model_format?: string; input_size?: number; seq_len?: number; }
+export interface OllamaInferRequest { model_name?: string; prompt: string; max_tokens?: number; temperature?: number; ollama_base_url?: string; }
+
+// Drift status (read-only for customer)
+export interface DataDriftRequest { reference_data_path?: string; current_data_path?: string; }
+
 /** QuantEdgeApiService — typed HTTP client wrapping all backend endpoints.
  *
  * All methods accept a DTO and return an Observable<DTO>.
@@ -34,5 +45,31 @@ export class QuantEdgeApiService {
     return this.http.post<CFPBPredictResponse>(
       `${this.base}/client/foundations/cfpb/predict`, request,
     );
+  }
+
+  // ── Jobs ─────────────────────────────────────────────────────────────────
+
+  listJobs(taskName?: string, status?: string): Observable<any> {
+    const params = new URLSearchParams();
+    if (taskName) params.set('task_name', taskName);
+    if (status) params.set('status', status);
+    const qs = params.toString() ? '?' + params.toString() : '';
+    return this.http.get(`${this.base}/client/foundations/jobs${qs}`);
+  }
+
+  getJob(jobId: string): Observable<JobStatusResponse> {
+    return this.http.get<JobStatusResponse>(`${this.base}/client/foundations/jobs/${jobId}`);
+  }
+
+  // ── Model inference (customer-facing) ───────────────────────────────────
+
+  requestInference(req: ModelInferRequest): Observable<JobSubmittedResponse> {
+    return this.http.post<JobSubmittedResponse>(`${this.base}/client/foundations/serving/infer`, req);
+  }
+
+  // ── Ollama chat ──────────────────────────────────────────────────────────
+
+  ollamaChat(req: OllamaInferRequest): Observable<JobSubmittedResponse> {
+    return this.http.post<JobSubmittedResponse>(`${this.base}/client/foundations/ollama/infer`, req);
   }
 }

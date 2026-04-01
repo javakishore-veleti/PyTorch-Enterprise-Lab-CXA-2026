@@ -1,0 +1,54 @@
+/* QuantEdge Customer Portal — Global Styles */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f1117;
+  color: #e2e8f0;
+}
+
+/* Utility panels */
+.qe-panel { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 24px; margin-bottom: 20px; }
+.qe-panel h2 { color: #63b3ed; margin: 0 0 20px; font-size: 18px; }
+
+/* Result / error boxes */
+.result-box { background: #0d1117; border: 1px solid #2d3748; border-radius: 4px; padding: 12px; color: #68d391; font-size: 12px; overflow-x: auto; max-height: 300px; white-space: pre-wrap; }
+.error-box { background: #2d1515; border: 1px solid #e53e3e; border-radius: 4px; padding: 12px; color: #fc8181; font-size: 13px; }
+
+/* Job status */
+.job-status { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+.badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.badge-pending { background: #2d3748; color: #a0aec0; }
+.badge-running { background: #1a365d; color: #63b3ed; }
+.badge-completed { background: #1c4532; color: #68d391; }
+.badge-failed { background: #2d1515; color: #fc8181; }
+
+/* Buttons */
+button[type=submit], button[type=button] { background: #2b6cb0; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; margin-right: 8px; }
+button[type=submit]:hover, button[type=button]:hover { background: #2c5282; }
+button[type=submit]:disabled, button[type=button]:disabled { background: #2d3748; color: #718096; cursor: not-allowed; }
+
+/* Form groups */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; color: #a0aec0; font-size: 12px; margin-bottom: 6px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: #0d1117;
+  border: 1px solid #2d3748;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #e2e8f0;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { outline: none; border-color: #63b3ed; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0f1117; }
+::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 3px; }

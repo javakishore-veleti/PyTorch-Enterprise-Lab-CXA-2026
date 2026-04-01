@@ -4,35 +4,31 @@ import { JsonPipe } from '@angular/common';
 import { QuantEdgeAdminApiService } from '../../../core/services/quantedge-admin-api.service';
 import { JobPollingService } from '../../../core/services/job-polling.service';
 
-/** Model Registry / Canary Deployment (Week 11). */
 @Component({
-  selector: 'qe-admin-model-registry',
+  selector: 'qe-profiling-dashboard',
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
     <div class="qe-panel">
-      <h2>🚦 Canary Deployment (Week 11)</h2>
+      <h2>⚡ Profiling (Week 4)</h2>
       <form [formGroup]="form">
         <div class="form-group">
-          <label>Deployment ID</label>
-          <input formControlName="deployment_id" type="text" />
+          <label>Execution ID</label>
+          <input formControlName="execution_id" type="text" />
         </div>
         <div class="form-group">
-          <label>Canary Traffic %</label>
-          <input formControlName="canary_traffic_pct" type="number" min="0" max="100" />
-        </div>
-        <div class="form-group">
-          <label>Eval Requests</label>
-          <input formControlName="num_eval_requests" type="number" />
+          <label>Num Batches</label>
+          <input formControlName="num_batches" type="number" />
         </div>
         <div style="margin-top:16px">
-          <button type="button" [disabled]="loading()" (click)="submit('deploy')">Deploy Canary</button>
-          <button type="button" [disabled]="loading()" (click)="submit('eval')">Evaluate Canary</button>
+          <button type="button" [disabled]="loading()" (click)="submit('profiling')">
+            {{ loading() && currentAction()==='Run Profiling' ? 'Running…' : 'Run Profiling' }}
+          </button>
+          <button type="button" [disabled]="loading()" (click)="submit('ciciot')">
+            {{ loading() && currentAction()==='Download CIC-IoT' ? 'Running…' : 'Download CIC-IoT Dataset' }}
+          </button>
         </div>
       </form>
-      @if (currentAction()) {
-        <p style="color:#a0aec0;font-size:12px;margin:8px 0">Running: {{ currentAction() }}</p>
-      }
       @if (jobId()) {
         <div class="job-status">
           <span class="badge" [class]="statusClass()">{{ jobStatus() }}</span>
@@ -48,15 +44,14 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
     </div>
   `,
 })
-export class ModelRegistryComponent {
+export class ProfilingDashboardComponent {
   private readonly api     = inject(QuantEdgeAdminApiService);
   private readonly polling = inject(JobPollingService);
   private readonly fb      = inject(FormBuilder);
 
   readonly form = this.fb.group({
-    deployment_id:      ['deploy-001'],
-    canary_traffic_pct: [10],
-    num_eval_requests:  [50],
+    execution_id: ['profiling-001'],
+    num_batches:  [10],
   });
 
   loading       = signal(false);
@@ -76,16 +71,18 @@ export class ModelRegistryComponent {
     };
   });
 
-  submit(action: 'deploy' | 'eval'): void {
+  submit(action: 'profiling' | 'ciciot'): void {
     this.loading.set(true);
     this.error.set('');
     this.result.set(null);
     const v = this.form.value;
-    this.currentAction.set(action === 'deploy' ? 'Deploy Canary' : 'Evaluate Canary');
 
-    const call$ = action === 'deploy'
-      ? this.api.canaryDeploy({ deployment_id: v.deployment_id!, canary_traffic_pct: v.canary_traffic_pct! })
-      : this.api.canaryEval({ deployment_id: v.deployment_id!, num_eval_requests: v.num_eval_requests! });
+    const actionLabel = action === 'profiling' ? 'Run Profiling' : 'Download CIC-IoT';
+    this.currentAction.set(actionLabel);
+
+    const call$ = action === 'profiling'
+      ? this.api.runProfiling({ execution_id: v.execution_id!, num_batches: v.num_batches! })
+      : this.api.cicIotDownload({});
 
     call$.subscribe({
       next: (submitted) => {

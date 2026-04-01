@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ForexSignalsService } from '../services/forex-signals.service';
@@ -9,10 +9,21 @@ import { JobPollingService, JobStatusResponse } from '../../../core/services/job
 @Component({
   selector: 'qe-forex-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DecimalPipe],
   template: `
     <div class="forex-dashboard">
-      <h2>EUR/USD Forex Signals</h2>
+      <h2>💹 EUR/USD Forex Signals</h2>
+
+      <!-- Signal Strength Indicator -->
+      @if (jobState?.status === 'success' && jobState?.result) {
+        <div class="signal-strength-panel">
+          <div class="signal-label">Signal Strength</div>
+          <div class="signal-bar-wrap">
+            <div class="signal-bar" [style.width]="signalPct() + '%'" [class]="signalClass()"></div>
+          </div>
+          <div class="signal-value">{{ signalPct() | number:'1.1-1' }}%</div>
+        </div>
+      }
 
       <div class="controls">
         <label>Volatility Window
@@ -45,8 +56,43 @@ import { JobPollingService, JobStatusResponse } from '../../../core/services/job
           <tr><th>NaN Remaining</th>   <td>{{ jobState!.result!['nan_remaining'] }}</td></tr>
         </table>
       </div>
+
+      <!-- Job History -->
+      @if (jobHistory.length > 0) {
+        <div class="job-history">
+          <h3>Recent Forex Jobs</h3>
+          <table class="history-table">
+            <thead>
+              <tr><th>Job ID</th><th>Status</th><th>Time</th></tr>
+            </thead>
+            <tbody>
+              @for (job of jobHistory; track job.job_id) {
+                <tr>
+                  <td><code>{{ job.job_id.slice(0,8) }}…</code></td>
+                  <td>{{ statusEmoji(job.status) }} {{ job.status }}</td>
+                  <td>{{ job.submitted_at | date:'HH:mm:ss' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
   `,
+  styles: [`
+    .signal-strength-panel { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
+    .signal-label { color: #a0aec0; font-size: 13px; width: 120px; }
+    .signal-bar-wrap { flex: 1; height: 8px; background: #2d3748; border-radius: 4px; overflow: hidden; }
+    .signal-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+    .signal-strong { background: #68d391; }
+    .signal-medium { background: #f6ad55; }
+    .signal-weak { background: #fc8181; }
+    .signal-value { color: #e2e8f0; font-size: 14px; font-weight: 600; width: 50px; text-align: right; }
+    .job-history { margin-top: 24px; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .history-table th { text-align: left; color: #718096; padding: 6px 12px; border-bottom: 1px solid #2d3748; font-size: 11px; text-transform: uppercase; }
+    .history-table td { padding: 8px 12px; border-bottom: 1px solid #1a1d27; color: #e2e8f0; }
+  `],
 })
 export class ForexDashboardComponent implements OnInit, OnDestroy {
   private readonly service = inject(ForexSignalsService);
@@ -61,10 +107,26 @@ export class ForexDashboardComponent implements OnInit, OnDestroy {
   };
 
   jobState: JobStatusResponse | null = null;
+  jobHistory: JobStatusResponse[] = [];
   isPolling = false;
   error: string | null = null;
 
   ngOnInit(): void {}
+
+  signalPct(): number {
+    const r = this.jobState?.result;
+    if (!r) return 0;
+    const vol = r['volatility_points'] ?? 0;
+    const mom = r['momentum_points'] ?? 0;
+    return Math.min(100, Math.round(((vol + mom) / 2000) * 100));
+  }
+
+  signalClass(): string {
+    const pct = this.signalPct();
+    if (pct >= 65) return 'signal-strong';
+    if (pct >= 35) return 'signal-medium';
+    return 'signal-weak';
+  }
 
   loadSignals(): void {
     this.error = null;
@@ -77,7 +139,10 @@ export class ForexDashboardComponent implements OnInit, OnDestroy {
           this.subs.add(
             this.polling.pollUntilDone(submitted.job_id).subscribe({
               next:     job => { this.jobState = job; },
-              complete: ()  => { this.isPolling = false; },
+              complete: ()  => {
+                this.isPolling = false;
+                if (this.jobState) this.jobHistory = [this.jobState, ...this.jobHistory].slice(0, 10);
+              },
               error:    err => { this.error = err.message; this.isPolling = false; },
             })
           );

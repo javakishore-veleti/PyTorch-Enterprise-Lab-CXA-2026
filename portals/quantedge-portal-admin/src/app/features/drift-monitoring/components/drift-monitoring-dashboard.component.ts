@@ -4,36 +4,41 @@ import { JsonPipe } from '@angular/common';
 import { QuantEdgeAdminApiService } from '../../../core/services/quantedge-admin-api.service';
 import { JobPollingService } from '../../../core/services/job-polling.service';
 
-/** Experiment Tracking — MLflow log/register/list/promote (Week 11). */
 @Component({
-  selector: 'qe-admin-experiment-tracking',
+  selector: 'qe-drift-monitoring-dashboard',
   standalone: true,
   imports: [ReactiveFormsModule, JsonPipe],
   template: `
     <div class="qe-panel">
-      <h2>📊 MLflow Tracking (Week 11)</h2>
+      <h2>📡 Drift & Monitoring (Week 12)</h2>
       <form [formGroup]="form">
         <div class="form-group">
-          <label>Experiment Name</label>
-          <input formControlName="experiment_name" type="text" />
+          <label>PSI Threshold (data drift)</label>
+          <input formControlName="psi_threshold" type="number" step="0.01" />
         </div>
         <div class="form-group">
-          <label>Run Name</label>
-          <input formControlName="run_name" type="text" />
+          <label>Window Size (concept drift)</label>
+          <input formControlName="window_size" type="number" />
         </div>
         <div class="form-group">
-          <label>Params JSON (e.g. {"lr":"0.001"})</label>
-          <textarea formControlName="params_json" rows="2"></textarea>
+          <label>Audit Event Type</label>
+          <input formControlName="event_type" type="text" />
         </div>
         <div class="form-group">
-          <label>Metrics JSON (e.g. {"accuracy":0.95})</label>
-          <textarea formControlName="metrics_json" rows="2"></textarea>
+          <label>Actor</label>
+          <input formControlName="actor" type="text" />
+        </div>
+        <div class="form-group">
+          <label>Resource</label>
+          <input formControlName="resource" type="text" />
         </div>
         <div style="margin-top:16px">
-          <button type="button" [disabled]="loading()" (click)="submit('log')">Log Run</button>
-          <button type="button" [disabled]="loading()" (click)="submit('register')">Register Model</button>
-          <button type="button" [disabled]="loading()" (click)="submit('list')">List Registry</button>
-          <button type="button" [disabled]="loading()" (click)="submit('promote')">Promote Stage</button>
+          <button type="button" [disabled]="loading()" (click)="submit('data-drift')">Detect Data Drift</button>
+          <button type="button" [disabled]="loading()" (click)="submit('concept-drift')">Detect Concept Drift</button>
+          <button type="button" [disabled]="loading()" (click)="submit('prometheus')">Get Prometheus Metrics</button>
+          <button type="button" [disabled]="loading()" (click)="submit('audit')">Log Audit Event</button>
+          <button type="button" [disabled]="loading()" (click)="submit('adr-gen')">Generate ADRs</button>
+          <button type="button" [disabled]="loading()" (click)="submit('adr-list')">List ADRs</button>
         </div>
       </form>
       @if (currentAction()) {
@@ -54,16 +59,17 @@ import { JobPollingService } from '../../../core/services/job-polling.service';
     </div>
   `,
 })
-export class ExperimentTrackingComponent {
+export class DriftMonitoringDashboardComponent {
   private readonly api     = inject(QuantEdgeAdminApiService);
   private readonly polling = inject(JobPollingService);
   private readonly fb      = inject(FormBuilder);
 
   readonly form = this.fb.group({
-    experiment_name: ['quantedge-run'],
-    run_name:        ['run-001'],
-    params_json:     ['{"lr": "0.001", "epochs": "5"}'],
-    metrics_json:    ['{"accuracy": 0.95, "loss": 0.05}'],
+    psi_threshold: [0.2],
+    window_size:   [100],
+    event_type:    ['model_deployed'],
+    actor:         ['admin'],
+    resource:      ['ForexTransformer'],
   });
 
   loading       = signal(false);
@@ -83,23 +89,24 @@ export class ExperimentTrackingComponent {
     };
   });
 
-  submit(action: 'log' | 'register' | 'list' | 'promote'): void {
+  submit(action: 'data-drift' | 'concept-drift' | 'prometheus' | 'audit' | 'adr-gen' | 'adr-list'): void {
     this.loading.set(true);
     this.error.set('');
     this.result.set(null);
     const v = this.form.value;
-    const labels = { log: 'Log Run', register: 'Register Model', list: 'List Registry', promote: 'Promote Stage' };
+    const labels: Record<string, string> = {
+      'data-drift': 'Detect Data Drift', 'concept-drift': 'Detect Concept Drift',
+      prometheus: 'Prometheus Metrics', audit: 'Log Audit Event',
+      'adr-gen': 'Generate ADRs', 'adr-list': 'List ADRs',
+    };
     this.currentAction.set(labels[action]);
 
-    let params: Record<string,string> | undefined;
-    let metrics: Record<string,number> | undefined;
-    try { params  = v.params_json  ? JSON.parse(v.params_json)  : undefined; } catch { params = undefined; }
-    try { metrics = v.metrics_json ? JSON.parse(v.metrics_json) : undefined; } catch { metrics = undefined; }
-
-    const call$ = action === 'log'      ? this.api.mlflowLog({ experiment_name: v.experiment_name!, run_name: v.run_name!, params, metrics })
-                : action === 'register' ? this.api.mlflowRegister({ run_id: 'latest', model_name: v.experiment_name! })
-                : action === 'list'     ? this.api.registryList({ filter_name: v.experiment_name! })
-                : this.api.registryPromote({ model_name: v.experiment_name!, version: '1', target_stage: 'Production' });
+    const call$ = action === 'data-drift'    ? this.api.dataDrift({ psi_threshold: v.psi_threshold! })
+                : action === 'concept-drift' ? this.api.conceptDrift({ window_size: v.window_size! })
+                : action === 'prometheus'    ? this.api.prometheusMetrics({})
+                : action === 'audit'         ? this.api.auditLog({ event_type: v.event_type!, actor: v.actor!, resource: v.resource! })
+                : action === 'adr-gen'       ? this.api.adrGenerate({})
+                : this.api.adrList({});
 
     call$.subscribe({
       next: (submitted) => {
