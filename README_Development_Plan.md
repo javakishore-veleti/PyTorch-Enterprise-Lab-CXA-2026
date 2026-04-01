@@ -306,7 +306,7 @@
 | **Topics** | Data drift detection, GPU utilization monitoring in serving, cost per inference, Architecture Decision Record |
 | **Libraries** | `scipy` (KS-test), `prometheus` text format, `pydantic` |
 | **Dataset** | Synthetic data fallback; parquet paths configurable |
-| **Status** | `✅ Done · commit TBD` |
+| **Status** | `✅ Done · commit dcce752` |
 
 **Intermediate Tasks**
 
