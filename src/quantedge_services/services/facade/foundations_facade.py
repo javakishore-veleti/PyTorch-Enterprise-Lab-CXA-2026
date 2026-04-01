@@ -14,9 +14,15 @@ from quantedge_services.api.schemas.foundations.forex_schemas import (
     ForexPreprocessRequest, ForexPreprocessResponse,
     ForexTensorOpsRequest, ForexTensorOpsResponse,
 )
+from quantedge_services.api.schemas.foundations.nn_schemas import (
+    NNEvalRequest, NNEvalResponse,
+    NNPredictRequest, NNPredictResponse,
+    NNTrainRequest, NNTrainResponse,
+)
 from quantedge_services.core.logging import StructuredLogger
 from quantedge_services.services.wfs.cfpb_complaints.cfpb_service import CFPBComplaintsService
 from quantedge_services.services.wfs.forex_eurusd.forex_service import ForexEURUSDService
+from quantedge_services.services.wfs.forex_neuralnet.forex_nn_service import ForexNeuralNetService
 
 
 class FoundationsServiceFacade:
@@ -31,9 +37,11 @@ class FoundationsServiceFacade:
         self,
         forex_service: ForexEURUSDService,
         cfpb_service: CFPBComplaintsService,
+        nn_service: ForexNeuralNetService,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
+        self._nn = nn_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -71,3 +79,14 @@ class FoundationsServiceFacade:
 
     async def cfpb_train(self, request: CFPBTrainRequest) -> CFPBTrainResponse:
         return await self._cfpb.train(request)
+
+    # ── Neural Networks ────────────────────────────────────────────────────
+
+    async def nn_train(self, request: NNTrainRequest) -> NNTrainResponse:
+        return await self._nn.train(request)
+
+    async def nn_evaluate(self, request: NNEvalRequest) -> NNEvalResponse:
+        return await self._nn.evaluate(request)
+
+    async def nn_predict(self, request: NNPredictRequest) -> NNPredictResponse:
+        return await self._nn.predict(request)

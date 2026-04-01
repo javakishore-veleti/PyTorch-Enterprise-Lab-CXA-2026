@@ -12,6 +12,9 @@ from quantedge_services.api.schemas.foundations.forex_schemas import (
     ForexAutogradRequest, ForexDownloadRequest, ForexIngestionRequest,
     ForexPreprocessRequest, ForexTensorOpsRequest,
 )
+from quantedge_services.api.schemas.foundations.nn_schemas import (
+    NNTrainRequest, NNEvalRequest, NNPredictRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -52,6 +55,10 @@ class FoundationsAdminRouter:
         self.router.post("/cfpb/preprocess",   response_model=JobSubmittedResponse, status_code=202)(self.cfpb_preprocess)
         self.router.post("/cfpb/dataloaders",  response_model=JobSubmittedResponse, status_code=202)(self.cfpb_build_dataloaders)
         self.router.post("/cfpb/train",        response_model=JobSubmittedResponse, status_code=202)(self.cfpb_train)
+
+        self.router.post("/nn/train",    response_model=JobSubmittedResponse, status_code=202)(self.nn_train)
+        self.router.post("/nn/evaluate", response_model=JobSubmittedResponse, status_code=202)(self.nn_evaluate)
+        self.router.post("/nn/predict",  response_model=JobSubmittedResponse, status_code=202)(self.nn_predict)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -136,4 +143,19 @@ class FoundationsAdminRouter:
     async def cfpb_train(self, request: CFPBTrainRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("cfpb_train")
         bg.add_task(self._run_job, job.id, self._facade.cfpb_train, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def nn_train(self, request: NNTrainRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("nn_train")
+        bg.add_task(self._run_job, job.id, self._facade.nn_train, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def nn_evaluate(self, request: NNEvalRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("nn_evaluate")
+        bg.add_task(self._run_job, job.id, self._facade.nn_evaluate, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def nn_predict(self, request: NNPredictRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("nn_predict")
+        bg.add_task(self._run_job, job.id, self._facade.nn_predict, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)

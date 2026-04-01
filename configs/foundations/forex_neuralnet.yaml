@@ -1,0 +1,16 @@
+model:
+  mlp:
+    hidden_sizes: [128, 64, 32]
+    dropout_rate: 0.3
+  lstm:
+    hidden_size: 128
+    num_layers: 2
+    dropout_rate: 0.3
+training:
+  epochs: 50
+  learning_rate: 0.001
+  batch_size: 256
+  patience: 5
+paths:
+  parquet_dir: data/forex/processed
+  checkpoint_dir: data/forex/checkpoints

@@ -18,6 +18,10 @@ from quantedge_services.services.wfs.forex_eurusd.tasks.download_task import For
 from quantedge_services.services.wfs.forex_eurusd.tasks.ingest_task import ForexIngestionTask
 from quantedge_services.services.wfs.forex_eurusd.tasks.preprocess_task import ForexPreprocessTask
 from quantedge_services.services.wfs.forex_eurusd.tasks.tensor_ops_task import ForexTensorOpsTask
+from quantedge_services.services.wfs.forex_neuralnet.forex_nn_service import ForexNeuralNetService
+from quantedge_services.services.wfs.forex_neuralnet.tasks.eval_task import NNEvalTask
+from quantedge_services.services.wfs.forex_neuralnet.tasks.predict_task import NNPredictTask
+from quantedge_services.services.wfs.forex_neuralnet.tasks.train_task import NNTrainTask
 
 
 class DependencyContainer:
@@ -66,10 +70,21 @@ class DependencyContainer:
             training_task=_cfpb_training,
         )
 
+        # NN tasks + service
+        _nn_train = NNTrainTask()
+        _nn_eval = NNEvalTask()
+        _nn_predict = NNPredictTask()
+        self.nn_service = ForexNeuralNetService(
+            train_task=_nn_train,
+            eval_task=_nn_eval,
+            predict_task=_nn_predict,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
             cfpb_service=self.cfpb_service,
+            nn_service=self.nn_service,
         )
 
 
