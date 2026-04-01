@@ -1,0 +1,17 @@
+model_export:
+  default_input_size: 14
+  default_seq_len: 30
+  default_d_model: 64
+  default_nhead: 4
+  default_num_layers: 4
+  default_batch_size: 4
+  opset_version: 17
+  output_dir: "data/exports"
+
+benchmark:
+  num_runs: 100
+  warmup_runs: 10
+
+tensorrt:
+  precision: "fp16"
+  workspace_size_mb: 1024

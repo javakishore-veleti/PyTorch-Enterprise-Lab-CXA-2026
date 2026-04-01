@@ -1,5 +1,13 @@
 """FoundationsServiceFacade — single entry point for all Foundations API calls."""
 from __future__ import annotations
+from quantedge_services.api.schemas.foundations.export_schemas import (
+    TorchScriptExportRequest, TorchScriptExportResult,
+    ONNXExportRequest, ONNXExportResult,
+    ONNXValidateRequest, ONNXValidateResult,
+    TensorRTExportRequest, TensorRTExportResult,
+    BenchmarkRequest, BenchmarkResult,
+)
+from quantedge_services.services.wfs.model_export.export_service import ModelExportService
 from quantedge_services.api.schemas.foundations.profiler_schemas import (
     CICIoTDownloadRequest, CICIoTDownloadResponse,
     CICIoTIngestionRequest, CICIoTIngestionResponse,
@@ -93,6 +101,7 @@ class FoundationsServiceFacade:
         stackoverflow_service: StackOverflowService,
         domain_adapt_service: DomainAdaptService,
         ollama_service: OllamaService,
+        export_service: ModelExportService | None = None,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
@@ -107,6 +116,7 @@ class FoundationsServiceFacade:
         self._stackoverflow = stackoverflow_service
         self._domain_adapt = domain_adapt_service
         self._ollama = ollama_service
+        self._export = export_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -262,3 +272,30 @@ class FoundationsServiceFacade:
         self, request: OllamaMergeRequest
     ) -> OllamaMergeResult:
         return await self._ollama.merge(request)
+
+    # ── Model Export ───────────────────────────────────────────────────────────
+
+    async def submit_torchscript_export(
+        self, request: TorchScriptExportRequest
+    ) -> TorchScriptExportResult:
+        return await self._export.export_torchscript(request)
+
+    async def submit_onnx_export(
+        self, request: ONNXExportRequest
+    ) -> ONNXExportResult:
+        return await self._export.export_onnx(request)
+
+    async def submit_onnx_validate(
+        self, request: ONNXValidateRequest
+    ) -> ONNXValidateResult:
+        return await self._export.validate_onnx(request)
+
+    async def submit_tensorrt_export(
+        self, request: TensorRTExportRequest
+    ) -> TensorRTExportResult:
+        return await self._export.export_tensorrt(request)
+
+    async def submit_benchmark(
+        self, request: BenchmarkRequest
+    ) -> BenchmarkResult:
+        return await self._export.benchmark(request)

@@ -35,6 +35,13 @@ from quantedge_services.api.schemas.foundations.domain_adapt_schemas import (
     DomainAdaptTrainRequest, DomainAdaptEvalRequest,
     OllamaInferRequest, OllamaMergeRequest,
 )
+from quantedge_services.api.schemas.foundations.export_schemas import (
+    TorchScriptExportRequest,
+    ONNXExportRequest,
+    ONNXValidateRequest,
+    TensorRTExportRequest,
+    BenchmarkRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -108,6 +115,12 @@ class FoundationsAdminRouter:
         self.router.post("/domain-adapt/evaluate",  response_model=JobSubmittedResponse, status_code=202)(self.domain_adapt_eval)
         self.router.post("/ollama/infer",            response_model=JobSubmittedResponse, status_code=202)(self.ollama_infer)
         self.router.post("/ollama/merge",            response_model=JobSubmittedResponse, status_code=202)(self.ollama_merge)
+
+        self.router.post("/export/torchscript",      response_model=JobSubmittedResponse, status_code=202)(self.export_torchscript)
+        self.router.post("/export/onnx",             response_model=JobSubmittedResponse, status_code=202)(self.export_onnx)
+        self.router.post("/export/onnx/validate",    response_model=JobSubmittedResponse, status_code=202)(self.export_onnx_validate)
+        self.router.post("/export/tensorrt",         response_model=JobSubmittedResponse, status_code=202)(self.export_tensorrt)
+        self.router.post("/export/benchmark",        response_model=JobSubmittedResponse, status_code=202)(self.export_benchmark)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -332,4 +345,29 @@ class FoundationsAdminRouter:
     async def ollama_merge(self, request: OllamaMergeRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("ollama_merge")
         bg.add_task(self._run_job, job.id, self._facade.submit_ollama_merge, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def export_torchscript(self, request: TorchScriptExportRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("export_torchscript")
+        bg.add_task(self._run_job, job.id, self._facade.submit_torchscript_export, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def export_onnx(self, request: ONNXExportRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("export_onnx")
+        bg.add_task(self._run_job, job.id, self._facade.submit_onnx_export, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def export_onnx_validate(self, request: ONNXValidateRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("export_onnx_validate")
+        bg.add_task(self._run_job, job.id, self._facade.submit_onnx_validate, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def export_tensorrt(self, request: TensorRTExportRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("export_tensorrt")
+        bg.add_task(self._run_job, job.id, self._facade.submit_tensorrt_export, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def export_benchmark(self, request: BenchmarkRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("export_benchmark")
+        bg.add_task(self._run_job, job.id, self._facade.submit_benchmark, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)

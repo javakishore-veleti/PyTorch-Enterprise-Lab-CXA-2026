@@ -57,6 +57,12 @@ from quantedge_services.services.wfs.domain_adaptation.domain_adapt_service impo
 from quantedge_services.services.wfs.ollama_serving.tasks.ollama_infer_task import OllamaInferTask
 from quantedge_services.services.wfs.ollama_serving.tasks.ollama_merge_task import OllamaMergeTask
 from quantedge_services.services.wfs.ollama_serving.ollama_service import OllamaService
+from quantedge_services.services.wfs.model_export.tasks.torchscript_export_task import TorchScriptExportTask
+from quantedge_services.services.wfs.model_export.tasks.onnx_export_task import ONNXExportTask
+from quantedge_services.services.wfs.model_export.tasks.onnx_validate_task import ONNXValidateTask
+from quantedge_services.services.wfs.model_export.tasks.tensorrt_export_task import TensorRTExportTask
+from quantedge_services.services.wfs.model_export.tasks.benchmark_task import BenchmarkTask
+from quantedge_services.services.wfs.model_export.export_service import ModelExportService
 
 
 class DependencyContainer:
@@ -205,6 +211,20 @@ class DependencyContainer:
             merge_task=_ollama_merge,
         )
 
+        # Model export tasks + service
+        _ts_export = TorchScriptExportTask()
+        _onnx_export = ONNXExportTask()
+        _onnx_validate = ONNXValidateTask()
+        _tensorrt_export = TensorRTExportTask()
+        _benchmark = BenchmarkTask()
+        self.export_service = ModelExportService(
+            torchscript_task=_ts_export,
+            onnx_export_task=_onnx_export,
+            onnx_validate_task=_onnx_validate,
+            tensorrt_task=_tensorrt_export,
+            benchmark_task=_benchmark,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -220,6 +240,7 @@ class DependencyContainer:
             stackoverflow_service=self.stackoverflow_service,
             domain_adapt_service=self.domain_adapt_service,
             ollama_service=self.ollama_service,
+            export_service=self.export_service,
         )
 
 

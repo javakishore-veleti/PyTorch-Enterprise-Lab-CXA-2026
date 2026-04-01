@@ -230,7 +230,7 @@
 | **Libraries** | `torch.jit`, `onnx`, `optimum` (HF) |
 | **Dataset** | NASA CMAPSS Engine Degradation · Kaggle · ~50 MB |
 | **Input** | Trained sensor transformer from Week 6 as starting point |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done · commit <TBD>` |
 
 **Intermediate Tasks**
 
