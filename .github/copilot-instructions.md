@@ -14,6 +14,8 @@ The lab is structured as a progression:
 3. **LLM Fine-tuning** — parameter-efficient fine-tuning (LoRA, QLoRA, PEFT) on enterprise data
 4. **Enterprise Model Serving** — TorchServe, ONNX export, quantization, and production deployment patterns
 
+- **Foundations (Weeks 1–2):** EUR/USD Forex Tick Data 2010–2024 (Kaggle, ~8 GB, 300M+ ticks) for tensor/autograd work; CFPB Consumer Financial Complaints (HuggingFace `cfpb/consumer-finance-complaints`, ~2 GB, 3M+ records) for DataLoader/training loop work
+
 Refer to `PyTorch_Mastery_Plan.xlsx` for the detailed module breakdown and lab sequencing.
 
 ## Environment & Tooling

@@ -27,20 +27,21 @@
 |---|---|
 | **Topics** | Tensors, autograd, computation graph, device management (CPU↔GPU) |
 | **Libraries** | `torch`, `numpy` |
-| **Dataset** | Automobile Telematics · Kaggle · ~300 MB |
-| **Input** | CSV: speed, RPM, throttle, acceleration columns |
+| **Dataset** | EUR/USD Forex Tick Data (2010–2024) · Kaggle (HistData) · ~8 GB |
+| **Input** | CSV: datetime, open, high, low, close, volume — 300M+ tick records |
 | **Status** | `⬜ Not Started` |
 
 **Intermediate Tasks**
 
-- [ ] Write manual backward pass
+- [ ] Write manual backward pass on price-delta tensors
 - [ ] Compare with autograd result
 - [ ] Draw computation graph on paper
-- [ ] Intentionally cause NaN — then fix it
+- [ ] Intentionally cause NaN (inject missing weekend/holiday ticks) — then fix it
+- [ ] Compute rolling volatility and momentum as tensor ops on the full 8 GB corpus
 
 **Outcome**
 
-> Understand what `.backward()` does in memory — not just that it works
+> Understand what `.backward()` does in memory on real financial data — not just that it works
 
 ---
 
@@ -50,21 +51,22 @@
 |---|---|
 | **Topics** | Custom Dataset & DataLoader, training loop, loss & metrics, checkpointing, reproducibility |
 | **Libraries** | `torch.utils.data`, `datasets` (HF) |
-| **Dataset** | OpenAssistant oasst1 · HuggingFace · ~1 GB |
-| **Input** | Conversation JSON tokenized into `input_ids` sequences |
+| **Dataset** | CFPB Consumer Financial Complaints · HuggingFace (`cfpb/consumer-finance-complaints`) · ~2 GB |
+| **Input** | 3M+ real bank complaint narratives — tokenized into `input_ids` sequences for classification/LM |
 | **Status** | `⬜ Not Started` |
 
 **Intermediate Tasks**
 
-- [ ] Build `Dataset` class from scratch
+- [ ] Build `Dataset` class from scratch (map-style + iterable-style)
 - [ ] Add `pin_memory` + `num_workers`
 - [ ] Save & resume from checkpoint
 - [ ] Set all seeds — confirm same loss across runs
 - [ ] Add eval loop with accuracy metric
+- [ ] Handle class imbalance across complaint product categories
 
 **Outcome**
 
-> Clean training loop that trains, saves, resumes — fully reproducible on your RTX 5080
+> Clean training loop on 3M real financial complaints — trains, saves, resumes, fully reproducible on your RTX 5080
 
 ---
 
@@ -335,8 +337,8 @@
 
 | Dataset | Source | Size | Used in |
 |---|---|---|---|
-| Automobile Telematics | Kaggle | ~300 MB | Week 1 |
-| OpenAssistant oasst1 | HuggingFace | ~1 GB | Weeks 2, 7 |
+| EUR/USD Forex Tick Data (2010–2024) | Kaggle (HistData) | ~8 GB | Week 1 |
+| CFPB Consumer Financial Complaints | HuggingFace | ~2 GB | Week 2 |
 | CIC IoT 2023 | Kaggle | ~10 GB | Weeks 3, 4 |
 | NASA CMAPSS Engine Degradation | Kaggle | ~50 MB | Weeks 5, 6, 9 |
 | StackOverflow Java/ES dump | Kaggle | ~2 GB | Week 8 |
