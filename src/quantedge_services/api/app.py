@@ -1,10 +1,7 @@
 """QuantEdgeApp — FastAPI application factory."""
-
 from __future__ import annotations
-
 import uvicorn
 from fastapi import FastAPI
-
 from quantedge_services.api.dependencies import get_container
 from quantedge_services.api.middleware.nexus.correlation import CorrelationIdMiddleware
 from quantedge_services.api.middleware.nexus.request_log import RequestLoggingMiddleware
@@ -39,9 +36,10 @@ class QuantEdgeApp:
     def _register_routers(self, app: FastAPI) -> None:
         container = get_container()
         facade = container.foundations_facade
+        registry = container.job_registry
 
-        app.include_router(FoundationsAdminRouter(facade).router)
-        app.include_router(FoundationsClientRouter(facade).router)
+        app.include_router(FoundationsAdminRouter(facade, registry).router)
+        app.include_router(FoundationsClientRouter(facade, registry).router)
 
         @app.get("/health", tags=["Health"])
         async def health() -> dict:
@@ -52,7 +50,6 @@ class QuantEdgeApp:
         return self._app
 
 
-# Application instance — imported by uvicorn
 app = QuantEdgeApp().app
 
 

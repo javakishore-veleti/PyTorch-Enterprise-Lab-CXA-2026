@@ -1,8 +1,15 @@
 foundations:
   cfpb_complaints:
-    cache_dir: "data/cfpb"
-    split: "train"
-    streaming: false
+    download:
+      hf_dataset_id: "cfpb/consumer-finance-complaints"
+      destination_dir: "data/cfpb/raw"
+      split: "train"
+    ingest:
+      parquet_dir: "data/cfpb/raw"
+      output_parquet_dir: "data/cfpb/processed"
+      narrative_col: "Consumer complaint narrative"
+      product_col: "Product"
+      min_narrative_len: 50
     preprocess:
       model_name: "distilbert-base-uncased"
       max_length: 256

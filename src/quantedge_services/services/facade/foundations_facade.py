@@ -1,30 +1,18 @@
 """FoundationsServiceFacade — single entry point for all Foundations API calls."""
-
 from __future__ import annotations
-
-import torch.nn as nn
-
 from quantedge_services.api.schemas.foundations.cfpb_schemas import (
-    CFPBDatasetRequest,
-    CFPBDatasetResponse,
-    CFPBIngestionRequest,
-    CFPBIngestionResponse,
-    CFPBPreprocessRequest,
-    CFPBPreprocessResponse,
-    CFPBTrainRequest,
-    CFPBTrainResponse,
+    CFPBDatasetRequest, CFPBDatasetResponse,
+    CFPBDownloadRequest, CFPBDownloadResponse,
+    CFPBIngestionRequest, CFPBIngestionResponse,
+    CFPBPreprocessRequest, CFPBPreprocessResponse,
+    CFPBTrainRequest, CFPBTrainResponse,
 )
 from quantedge_services.api.schemas.foundations.forex_schemas import (
-    ForexAutogradRequest,
-    ForexAutogradResponse,
-    ForexDownloadRequest,
-    ForexDownloadResponse,
-    ForexIngestionRequest,
-    ForexIngestionResponse,
-    ForexPreprocessRequest,
-    ForexPreprocessResponse,
-    ForexTensorOpsRequest,
-    ForexTensorOpsResponse,
+    ForexAutogradRequest, ForexAutogradResponse,
+    ForexDownloadRequest, ForexDownloadResponse,
+    ForexIngestionRequest, ForexIngestionResponse,
+    ForexPreprocessRequest, ForexPreprocessResponse,
+    ForexTensorOpsRequest, ForexTensorOpsResponse,
 )
 from quantedge_services.core.logging import StructuredLogger
 from quantedge_services.services.wfs.cfpb_complaints.cfpb_service import CFPBComplaintsService
@@ -50,35 +38,36 @@ class FoundationsServiceFacade:
 
     # ── Forex ──────────────────────────────────────────────────────────────
 
-    def forex_download(self, request: ForexDownloadRequest) -> ForexDownloadResponse:
-        return self._forex.download(request)
+    async def forex_download(self, request: ForexDownloadRequest) -> ForexDownloadResponse:
+        return await self._forex.download(request)
 
-    def forex_ingest(self, request: ForexIngestionRequest) -> ForexIngestionResponse:
+    async def forex_ingest(self, request: ForexIngestionRequest) -> ForexIngestionResponse:
         self._logger.info("facade_forex_ingest", execution_id=None)
-        return self._forex.ingest(request)
+        return await self._forex.ingest(request)
 
-    def forex_preprocess(self, request: ForexPreprocessRequest) -> ForexPreprocessResponse:
-        return self._forex.preprocess(request)
+    async def forex_preprocess(self, request: ForexPreprocessRequest) -> ForexPreprocessResponse:
+        return await self._forex.preprocess(request)
 
-    def forex_autograd(self, request: ForexAutogradRequest) -> ForexAutogradResponse:
-        return self._forex.run_autograd(request)
+    async def forex_autograd(self, request: ForexAutogradRequest) -> ForexAutogradResponse:
+        return await self._forex.run_autograd(request)
 
-    def forex_tensor_ops(self, request: ForexTensorOpsRequest) -> ForexTensorOpsResponse:
-        return self._forex.run_tensor_ops(request)
+    async def forex_tensor_ops(self, request: ForexTensorOpsRequest) -> ForexTensorOpsResponse:
+        return await self._forex.run_tensor_ops(request)
 
     # ── CFPB ───────────────────────────────────────────────────────────────
 
-    def cfpb_ingest(self, request: CFPBIngestionRequest) -> CFPBIngestionResponse:
+    async def cfpb_download(self, request: CFPBDownloadRequest) -> CFPBDownloadResponse:
+        return await self._cfpb.download(request)
+
+    async def cfpb_ingest(self, request: CFPBIngestionRequest) -> CFPBIngestionResponse:
         self._logger.info("facade_cfpb_ingest", execution_id=None)
-        return self._cfpb.ingest(request)
+        return await self._cfpb.ingest(request)
 
-    def cfpb_preprocess(self, request: CFPBPreprocessRequest) -> CFPBPreprocessResponse:
-        return self._cfpb.preprocess(request)
+    async def cfpb_preprocess(self, request: CFPBPreprocessRequest) -> CFPBPreprocessResponse:
+        return await self._cfpb.preprocess(request)
 
-    def cfpb_build_dataloaders(self, request: CFPBDatasetRequest) -> CFPBDatasetResponse:
-        return self._cfpb.build_dataloaders(request)
+    async def cfpb_build_dataloaders(self, request: CFPBDatasetRequest) -> CFPBDatasetResponse:
+        return await self._cfpb.build_dataloaders(request)
 
-    def cfpb_train(
-        self, request: CFPBTrainRequest, model: nn.Module
-    ) -> CFPBTrainResponse:
-        return self._cfpb.train(request, model)
+    async def cfpb_train(self, request: CFPBTrainRequest) -> CFPBTrainResponse:
+        return await self._cfpb.train(request)

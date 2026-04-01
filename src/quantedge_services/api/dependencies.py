@@ -1,15 +1,14 @@
 """DependencyContainer — wires all classes together for FastAPI DI."""
-
 from __future__ import annotations
-
 from functools import lru_cache
-
 from quantedge_services.core.checkpointing import CheckpointManager
 from quantedge_services.core.device import DeviceManager
+from quantedge_services.core.jobs import JobRegistry
 from quantedge_services.core.reproducibility import ReproducibilityManager
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 from quantedge_services.services.wfs.cfpb_complaints.cfpb_service import CFPBComplaintsService
 from quantedge_services.services.wfs.cfpb_complaints.tasks.dataset_task import CFPBDatasetTask
+from quantedge_services.services.wfs.cfpb_complaints.tasks.download_task import CFPBDataDownloadTask
 from quantedge_services.services.wfs.cfpb_complaints.tasks.ingest_task import CFPBIngestionTask
 from quantedge_services.services.wfs.cfpb_complaints.tasks.preprocess_task import CFPBPreprocessTask
 from quantedge_services.services.wfs.cfpb_complaints.tasks.training_task import CFPBTrainingTask
@@ -32,6 +31,7 @@ class DependencyContainer:
         self.device_manager = DeviceManager(prefer_gpu=True)
         self.reproducibility_manager = ReproducibilityManager(seed=42)
         self.checkpoint_manager = CheckpointManager(base_dir="data/checkpoints")
+        self.job_registry = JobRegistry()
 
         # Forex tasks
         _forex_download = ForexDataDownloadTask()
@@ -41,6 +41,7 @@ class DependencyContainer:
         _forex_tensor_ops = ForexTensorOpsTask()
 
         # CFPB tasks
+        _cfpb_download = CFPBDataDownloadTask()
         _cfpb_ingest = CFPBIngestionTask()
         _cfpb_preprocess = CFPBPreprocessTask()
         _cfpb_dataset = CFPBDatasetTask()
@@ -58,6 +59,7 @@ class DependencyContainer:
             tensor_ops_task=_forex_tensor_ops,
         )
         self.cfpb_service = CFPBComplaintsService(
+            download_task=_cfpb_download,
             ingest_task=_cfpb_ingest,
             preprocess_task=_cfpb_preprocess,
             dataset_task=_cfpb_dataset,

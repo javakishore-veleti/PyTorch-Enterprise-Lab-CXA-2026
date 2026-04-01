@@ -1,21 +1,39 @@
 """DTOs for CFPB Complaints workflow — request and response contracts."""
-
 from __future__ import annotations
-
 from typing import Literal
-
 from pydantic import BaseModel, Field
 
 
-class CFPBIngestionRequest(BaseModel):
-    cache_dir: str = Field(default="data/cfpb", description="Local HuggingFace cache path")
+class CFPBDownloadRequest(BaseModel):
+    destination_dir: str = Field(default="data/cfpb/raw", description="Directory for raw HuggingFace parquet files")
+    hf_dataset_id: str = Field(default="cfpb/consumer-finance-complaints")
     split: str = Field(default="train")
-    streaming: bool = Field(default=False, description="Use IterableDataset to avoid full download")
+
+
+class CFPBDownloadResponse(BaseModel):
+    execution_id: str
+    destination_dir: str
+    files_downloaded: int
+    total_size_mb: float
+    parquet_path: str
+    status: Literal["success", "failed", "skipped"]
+    message: str = ""
+    error: str | None = None
+
+
+class CFPBIngestionRequest(BaseModel):
+    parquet_dir: str = Field(default="data/cfpb/raw", description="Directory containing downloaded HuggingFace parquet")
+    output_parquet_dir: str = Field(default="data/cfpb/processed")
+    narrative_col: str = Field(default="Consumer complaint narrative")
+    product_col: str = Field(default="Product")
+    min_narrative_len: int = Field(default=50, description="Drop narratives shorter than this")
 
 
 class CFPBIngestionResponse(BaseModel):
     execution_id: str
-    rows_loaded: int
+    rows_raw: int
+    rows_after_filter: int
+    parquet_path: str
     status: Literal["success", "failed"]
     error: str | None = None
 
