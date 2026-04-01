@@ -18,6 +18,8 @@ from quantedge_services.api.schemas.foundations.cfpb_schemas import (
 from quantedge_services.api.schemas.foundations.forex_schemas import (
     ForexAutogradRequest,
     ForexAutogradResponse,
+    ForexDownloadRequest,
+    ForexDownloadResponse,
     ForexIngestionRequest,
     ForexIngestionResponse,
     ForexPreprocessRequest,
@@ -46,6 +48,9 @@ class FoundationsAdminRouter:
         self._register_routes()
 
     def _register_routes(self) -> None:
+        self.router.post("/forex/download", response_model=ForexDownloadResponse)(
+            self.forex_download
+        )
         self.router.post("/forex/ingest", response_model=ForexIngestionResponse)(
             self.forex_ingest
         )
@@ -70,6 +75,9 @@ class FoundationsAdminRouter:
         self.router.post("/cfpb/train", response_model=CFPBTrainResponse)(
             self.cfpb_train
         )
+
+    async def forex_download(self, request: ForexDownloadRequest) -> ForexDownloadResponse:
+        return self._facade.forex_download(request)
 
     async def forex_ingest(self, request: ForexIngestionRequest) -> ForexIngestionResponse:
         return self._facade.forex_ingest(request)

@@ -17,6 +17,8 @@ from quantedge_services.api.schemas.foundations.cfpb_schemas import (
 from quantedge_services.api.schemas.foundations.forex_schemas import (
     ForexAutogradRequest,
     ForexAutogradResponse,
+    ForexDownloadRequest,
+    ForexDownloadResponse,
     ForexIngestionRequest,
     ForexIngestionResponse,
     ForexPreprocessRequest,
@@ -47,6 +49,9 @@ class FoundationsServiceFacade:
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
+
+    def forex_download(self, request: ForexDownloadRequest) -> ForexDownloadResponse:
+        return self._forex.download(request)
 
     def forex_ingest(self, request: ForexIngestionRequest) -> ForexIngestionResponse:
         self._logger.info("facade_forex_ingest", execution_id=None)

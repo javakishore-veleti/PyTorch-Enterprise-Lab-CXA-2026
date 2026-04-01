@@ -15,6 +15,7 @@ from quantedge_services.services.wfs.cfpb_complaints.tasks.preprocess_task impor
 from quantedge_services.services.wfs.cfpb_complaints.tasks.training_task import CFPBTrainingTask
 from quantedge_services.services.wfs.forex_eurusd.forex_service import ForexEURUSDService
 from quantedge_services.services.wfs.forex_eurusd.tasks.autograd_task import ForexAutogradTask
+from quantedge_services.services.wfs.forex_eurusd.tasks.download_task import ForexDataDownloadTask
 from quantedge_services.services.wfs.forex_eurusd.tasks.ingest_task import ForexIngestionTask
 from quantedge_services.services.wfs.forex_eurusd.tasks.preprocess_task import ForexPreprocessTask
 from quantedge_services.services.wfs.forex_eurusd.tasks.tensor_ops_task import ForexTensorOpsTask
@@ -33,6 +34,7 @@ class DependencyContainer:
         self.checkpoint_manager = CheckpointManager(base_dir="data/checkpoints")
 
         # Forex tasks
+        _forex_download = ForexDataDownloadTask()
         _forex_ingest = ForexIngestionTask()
         _forex_preprocess = ForexPreprocessTask(device_manager=self.device_manager)
         _forex_autograd = ForexAutogradTask(device_manager=self.device_manager)
@@ -49,6 +51,7 @@ class DependencyContainer:
 
         # Services
         self.forex_service = ForexEURUSDService(
+            download_task=_forex_download,
             ingest_task=_forex_ingest,
             preprocess_task=_forex_preprocess,
             autograd_task=_forex_autograd,

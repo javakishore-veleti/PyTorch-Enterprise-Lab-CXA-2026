@@ -43,10 +43,8 @@ class ForexAutogradTask:
             auto_loss = F.mse_loss(auto_preds, targets)
             auto_loss.backward()
 
-            max_grad_diff = (
-                (manual_grad - (auto_preds.grad or torch.zeros_like(manual_grad)))
-                .abs().max().item()
-            )
+            grad = auto_preds.grad if auto_preds.grad is not None else torch.zeros_like(manual_grad)
+            max_grad_diff = (manual_grad - grad).abs().max().item()
             self._logger.info(
                 "autograd_comparison_complete",
                 execution_id=request.execution_id,

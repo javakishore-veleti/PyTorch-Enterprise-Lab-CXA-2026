@@ -1,19 +1,48 @@
 foundations:
   forex_eurusd:
-    data_dir: "data/forex"
-    years: [2019, 2020, 2021, 2022]
-    nrows: null
+
+    # ── Data acquisition ────────────────────────────────────────────────────
+    data_sources:
+      kaggle:
+        dataset: "kianindeed/eurusd-histdata-tick-data"   # ~8 GB, 300M+ tick rows
+        # Requires: ~/.kaggle/kaggle.json  OR  KAGGLE_USERNAME / KAGGLE_KEY env vars
+      huggingface:
+        dataset_id: "nlp-creator/eurusd-historical-forex"
+        # Requires: HF_TOKEN env var for gated datasets
+
+    # ── Directory layout ────────────────────────────────────────────────────
+    raw_dir:       "data/forex/raw"        # HistData tick CSVs land here after download
+    parquet_dir:   "data/forex/parquet"    # Resampled OHLCV bars (Parquet format)
+    processed_dir: "data/forex/processed"  # Normalised / split tensors
+
+    # ── Ingestion ────────────────────────────────────────────────────────────
+    # HistData raw tick CSV columns (no header): YYYYMMDD HHmmss, bid, ask
+    # The ingestion step resamples ticks → OHLCV bars.
+    years: [2019, 2020, 2021, 2022, 2023]
+    nrows: null          # Set to e.g. 500000 for fast local dev runs
+    resample_freq: "1min"  # Pandas offset alias — 1-minute OHLCV bars
+
+    # ── Preprocessing ───────────────────────────────────────────────────────
     preprocess:
-      fill_gaps: true
-      normalize: true
+      fill_gaps:   true
+      normalize:   true
+      scaler_type: "minmax"   # "minmax" | "zscore"
+      train_ratio: 0.70
+      val_ratio:   0.15
+      # test_ratio: 1 - train_ratio - val_ratio = 0.15
+
+    # ── Downstream task params ───────────────────────────────────────────────
     tensor_ops:
-      volatility_window: 20
-      momentum_window: 14
-      inject_nan_fraction: 0.01
+      volatility_window:    20
+      momentum_window:      14
+      inject_nan_fraction:  0.01
+
     autograd:
       window_size: 20
 
+  # ── Global runtime ──────────────────────────────────────────────────────────
   device:
     prefer_gpu: true
+
   reproducibility:
     seed: 42

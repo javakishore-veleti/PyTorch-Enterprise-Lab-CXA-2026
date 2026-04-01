@@ -27,6 +27,11 @@ class StructuredLogger:
 
     @staticmethod
     def _configure(json_output: bool, level: str) -> None:
+        logging.basicConfig(
+            stream=sys.stdout,
+            level=getattr(logging, level.upper(), logging.INFO),
+            format="%(message)s",  # structlog provides all formatting
+        )
         processors: list[structlog.types.Processor] = [
             structlog.contextvars.merge_contextvars,
             structlog.stdlib.add_logger_name,
@@ -41,7 +46,7 @@ class StructuredLogger:
                 getattr(logging, level.upper(), logging.INFO)
             ),
             context_class=dict,
-            logger_factory=structlog.PrintLoggerFactory(sys.stdout),
+            logger_factory=structlog.stdlib.LoggerFactory(),
             cache_logger_on_first_use=True,
         )
         StructuredLogger._configured = True
