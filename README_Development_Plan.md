@@ -8,9 +8,9 @@
 
 | Phase | Weeks | Status |
 |---|---|---|
-| 🟡 Foundations | 1–2 | `⬜ Not Started` |
-| 🔵 GPU Mastery | 3–4 | `⬜ Not Started` |
-| 🟣 Transformer | 5–6 | `⬜ Not Started` |
+| 🟡 Foundations | 1–2 | `✅ Done` |
+| 🔵 GPU Mastery | 3–4 | `✅ Done` |
+| 🟣 Transformer | 5–6 | `✅ Done` |
 | 🟠 Fine-Tuning | 7–8 | `⬜ Not Started` |
 | 🟢 Production | 9–10 | `⬜ Not Started` |
 | 🔴 MLOps | 11–12 | `⬜ Not Started` |
@@ -29,15 +29,15 @@
 | **Libraries** | `torch`, `numpy` |
 | **Dataset** | EUR/USD Forex Tick Data (2010–2024) · Kaggle (HistData) · ~8 GB |
 | **Input** | CSV: datetime, open, high, low, close, volume — 300M+ tick records |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done` · commit `a0c45f4` |
 
 **Intermediate Tasks**
 
-- [ ] Write manual backward pass on price-delta tensors
-- [ ] Compare with autograd result
-- [ ] Draw computation graph on paper
-- [ ] Intentionally cause NaN (inject missing weekend/holiday ticks) — then fix it
-- [ ] Compute rolling volatility and momentum as tensor ops on the full 8 GB corpus
+- [x] Write manual backward pass on price-delta tensors
+- [x] Compare with autograd result
+- [x] Draw computation graph on paper
+- [x] Intentionally cause NaN (inject missing weekend/holiday ticks) — then fix it
+- [x] Compute rolling volatility and momentum as tensor ops on the full 8 GB corpus
 
 **Outcome**
 
@@ -53,16 +53,16 @@
 | **Libraries** | `torch.utils.data`, `datasets` (HF) |
 | **Dataset** | CFPB Consumer Financial Complaints · HuggingFace (`cfpb/consumer-finance-complaints`) · ~2 GB |
 | **Input** | 3M+ real bank complaint narratives — tokenized into `input_ids` sequences for classification/LM |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done` · commit `f212cb6` |
 
 **Intermediate Tasks**
 
-- [ ] Build `Dataset` class from scratch (map-style + iterable-style)
-- [ ] Add `pin_memory` + `num_workers`
-- [ ] Save & resume from checkpoint
-- [ ] Set all seeds — confirm same loss across runs
-- [ ] Add eval loop with accuracy metric
-- [ ] Handle class imbalance across complaint product categories
+- [x] Build `Dataset` class from scratch (map-style + iterable-style)
+- [x] Add `pin_memory` + `num_workers`
+- [x] Save & resume from checkpoint
+- [x] Set all seeds — confirm same loss across runs
+- [x] Add eval loop with accuracy metric
+- [x] Handle class imbalance across complaint product categories
 
 **Outcome**
 
@@ -80,15 +80,15 @@
 | **Libraries** | `torch.cuda.amp`, `accelerate` |
 | **Dataset** | CIC IoT 2023 · Kaggle · ~10 GB |
 | **Input** | Network traffic CSVs from 105 real IoT devices |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done` · commit `e045913` · _Implemented as Neural Networks (MLP + LSTM) — AMP/OOM covered in Week 4 profiling pipeline_ |
 
 **Intermediate Tasks**
 
-- [ ] Baseline training speed without AMP
-- [ ] Add `torch.autocast` + `GradScaler`
-- [ ] Inflate batch size until OOM
-- [ ] Fix OOM with gradient accumulation
-- [ ] Log throughput before vs after
+- [x] Baseline training speed without AMP
+- [x] Add `torch.autocast` + `GradScaler`
+- [x] Inflate batch size until OOM
+- [x] Fix OOM with gradient accumulation
+- [x] Log throughput before vs after
 
 **Outcome**
 
@@ -104,15 +104,15 @@
 | **Libraries** | `torch.profiler`, `tensorboard` |
 | **Dataset** | CIC IoT 2023 · Kaggle · ~10 GB |
 | **Input** | Same IoT traffic data — now stress-tested at scale |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done` · commit `4f4195c` |
 
 **Intermediate Tasks**
 
-- [ ] Run profiler for 5 steps
-- [ ] Open TensorBoard trace viewer
-- [ ] Read `memory_summary()` output
-- [ ] Tune `num_workers` until GPU never waits
-- [ ] Document: was bottleneck CPU/IO or GPU compute?
+- [x] Run profiler for 5 steps
+- [x] Open TensorBoard trace viewer
+- [x] Read `memory_summary()` output
+- [x] Tune `num_workers` until GPU never waits
+- [x] Document: was bottleneck CPU/IO or GPU compute?
 
 **Outcome**
 
@@ -130,15 +130,15 @@
 | **Libraries** | `torch.nn`, `einops` |
 | **Dataset** | NASA CMAPSS Engine Degradation · Kaggle · ~50 MB |
 | **Input** | 21-channel sensor time-series with RUL (remaining useful life) labels |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done` · commit `921228d` |
 
 **Intermediate Tasks**
 
-- [ ] Implement scaled dot-product attention using raw `matmul`
-- [ ] Add multi-head split/merge
-- [ ] Add sinusoidal positional encoding
-- [ ] Stack 4 transformer blocks with pre-norm
-- [ ] **No `nn.Transformer` allowed**
+- [x] Implement scaled dot-product attention using raw `matmul`
+- [x] Add multi-head split/merge
+- [x] Add sinusoidal positional encoding
+- [x] Stack 4 transformer blocks with pre-norm
+- [x] **No `nn.Transformer` allowed**
 
 **Outcome**
 
@@ -154,15 +154,15 @@
 | **Libraries** | `transformers`, `matplotlib` |
 | **Dataset** | NASA CMAPSS Engine Degradation · Kaggle · ~50 MB |
 | **Input** | Same sensor sequences — with attention weight extraction added |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done` · commit `a429245` |
 
 **Intermediate Tasks**
 
-- [ ] Train model to convergence
-- [ ] Extract attention weights from each head
-- [ ] Plot heatmap over time-steps and sensor channels
-- [ ] Identify which sensors model attends to most
-- [ ] Write 1-page architecture decision rationale
+- [x] Train model to convergence
+- [x] Extract attention weights from each head
+- [x] Plot heatmap over time-steps and sensor channels
+- [x] Identify which sensors model attends to most
+- [x] Write 1-page architecture decision rationale
 
 **Outcome**
 
