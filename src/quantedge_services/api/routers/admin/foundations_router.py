@@ -26,6 +26,10 @@ from quantedge_services.api.schemas.foundations.attention_schemas import (
 from quantedge_services.api.schemas.foundations.viz_schemas import (
     AttentionExtractRequest, AttentionHeatmapRequest, ArchDecisionRequest,
 )
+from quantedge_services.api.schemas.foundations.lora_schemas import (
+    OAsst1DownloadRequest, OAsst1IngestionRequest,
+    LoRATrainRequest, LoRAEvalRequest, LoRAPredictRequest, LoRAMergeRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -85,6 +89,13 @@ class FoundationsAdminRouter:
         self.router.post("/attention/extract-weights", response_model=JobSubmittedResponse, status_code=202)(self.attention_extract_weights)
         self.router.post("/attention/heatmap", response_model=JobSubmittedResponse, status_code=202)(self.attention_heatmap)
         self.router.post("/attention/arch-decision", response_model=JobSubmittedResponse, status_code=202)(self.attention_arch_decision)
+
+        self.router.post("/oasst1/download",  response_model=JobSubmittedResponse, status_code=202)(self.oasst1_download)
+        self.router.post("/oasst1/ingest",    response_model=JobSubmittedResponse, status_code=202)(self.oasst1_ingest)
+        self.router.post("/lora/train",       response_model=JobSubmittedResponse, status_code=202)(self.lora_train)
+        self.router.post("/lora/evaluate",    response_model=JobSubmittedResponse, status_code=202)(self.lora_evaluate)
+        self.router.post("/lora/predict",     response_model=JobSubmittedResponse, status_code=202)(self.lora_predict)
+        self.router.post("/lora/merge",       response_model=JobSubmittedResponse, status_code=202)(self.lora_merge)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -249,4 +260,34 @@ class FoundationsAdminRouter:
     async def attention_arch_decision(self, request: ArchDecisionRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("attention_arch_decision")
         bg.add_task(self._run_job, job.id, self._facade.architecture_decision, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def oasst1_download(self, request: OAsst1DownloadRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("oasst1_download")
+        bg.add_task(self._run_job, job.id, self._facade.oasst1_download, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def oasst1_ingest(self, request: OAsst1IngestionRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("oasst1_ingest")
+        bg.add_task(self._run_job, job.id, self._facade.oasst1_ingest, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def lora_train(self, request: LoRATrainRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("lora_train")
+        bg.add_task(self._run_job, job.id, self._facade.lora_train, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def lora_evaluate(self, request: LoRAEvalRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("lora_evaluate")
+        bg.add_task(self._run_job, job.id, self._facade.lora_evaluate, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def lora_predict(self, request: LoRAPredictRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("lora_predict")
+        bg.add_task(self._run_job, job.id, self._facade.lora_predict, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def lora_merge(self, request: LoRAMergeRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("lora_merge")
+        bg.add_task(self._run_job, job.id, self._facade.lora_merge, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)

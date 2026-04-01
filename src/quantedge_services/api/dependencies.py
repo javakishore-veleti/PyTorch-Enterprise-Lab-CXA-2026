@@ -40,6 +40,14 @@ from quantedge_services.services.wfs.attention_viz.tasks.attention_extract_task 
 from quantedge_services.services.wfs.attention_viz.tasks.attention_heatmap_task import AttentionHeatmapTask
 from quantedge_services.services.wfs.attention_viz.tasks.arch_decision_task import ArchDecisionTask
 from quantedge_services.services.wfs.attention_viz.attention_viz_service import AttentionVizService
+from quantedge_services.services.wfs.oasst1.tasks.download_task import OAsst1DownloadTask
+from quantedge_services.services.wfs.oasst1.tasks.ingest_task import OAsst1IngestionTask
+from quantedge_services.services.wfs.oasst1.oasst1_service import OAsst1Service
+from quantedge_services.services.wfs.lora_finetuning.tasks.lora_train_task import LoRATrainTask
+from quantedge_services.services.wfs.lora_finetuning.tasks.lora_eval_task import LoRAEvalTask
+from quantedge_services.services.wfs.lora_finetuning.tasks.lora_predict_task import LoRAPredictTask
+from quantedge_services.services.wfs.lora_finetuning.tasks.lora_merge_task import LoRAMergeTask
+from quantedge_services.services.wfs.lora_finetuning.lora_service import LoRAService
 
 
 class DependencyContainer:
@@ -144,6 +152,26 @@ class DependencyContainer:
             arch_decision_task=_arch_decision,
         )
 
+        # OAsst1 tasks + service
+        _oasst1_download = OAsst1DownloadTask()
+        _oasst1_ingest = OAsst1IngestionTask()
+        self.oasst1_service = OAsst1Service(
+            download_task=_oasst1_download,
+            ingest_task=_oasst1_ingest,
+        )
+
+        # LoRA tasks + service
+        _lora_train = LoRATrainTask()
+        _lora_eval = LoRAEvalTask()
+        _lora_predict = LoRAPredictTask()
+        _lora_merge = LoRAMergeTask()
+        self.lora_service = LoRAService(
+            train_task=_lora_train,
+            eval_task=_lora_eval,
+            predict_task=_lora_predict,
+            merge_task=_lora_merge,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -154,6 +182,8 @@ class DependencyContainer:
             cmapss_service=self.cmapss_service,
             attention_service=self.attention_service,
             attention_viz_service=self.attention_viz_service,
+            oasst1_service=self.oasst1_service,
+            lora_service=self.lora_service,
         )
 
 

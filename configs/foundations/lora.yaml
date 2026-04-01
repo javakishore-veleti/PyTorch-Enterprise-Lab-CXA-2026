@@ -1,0 +1,17 @@
+lora:
+  rank: 16
+  alpha: 32.0
+  dropout: 0.1
+  target_modules: [w_q, w_k, w_v, w_o]
+training:
+  epochs: 20
+  learning_rate: 0.0005
+  batch_size: 128
+  patience: 5
+paths:
+  checkpoint_dir: data/lora/checkpoints
+  merged_dir: data/lora/merged
+oasst1:
+  hf_repo_id: OpenAssistant/oasst1
+  lang: en
+  min_text_len: 20

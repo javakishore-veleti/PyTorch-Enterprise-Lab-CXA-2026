@@ -47,6 +47,16 @@ from quantedge_services.api.schemas.foundations.viz_schemas import (
     ArchDecisionRequest, ArchDecisionResponse,
 )
 from quantedge_services.services.wfs.attention_viz.attention_viz_service import AttentionVizService
+from quantedge_services.api.schemas.foundations.lora_schemas import (
+    OAsst1DownloadRequest, OAsst1DownloadResponse,
+    OAsst1IngestionRequest, OAsst1IngestionResponse,
+    LoRATrainRequest, LoRATrainResponse,
+    LoRAEvalRequest, LoRAEvalResponse,
+    LoRAPredictRequest, LoRAPredictResponse,
+    LoRAMergeRequest, LoRAMergeResponse,
+)
+from quantedge_services.services.wfs.oasst1.oasst1_service import OAsst1Service
+from quantedge_services.services.wfs.lora_finetuning.lora_service import LoRAService
 
 
 class FoundationsServiceFacade:
@@ -67,6 +77,8 @@ class FoundationsServiceFacade:
         cmapss_service: CMAPSSService,
         attention_service: ForexAttentionService,
         attention_viz_service: AttentionVizService,
+        oasst1_service: OAsst1Service,
+        lora_service: LoRAService,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
@@ -76,6 +88,8 @@ class FoundationsServiceFacade:
         self._cmapss = cmapss_service
         self._attention = attention_service
         self._attention_viz = attention_viz_service
+        self._oasst1 = oasst1_service
+        self._lora = lora_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -173,3 +187,25 @@ class FoundationsServiceFacade:
 
     async def architecture_decision(self, request: ArchDecisionRequest) -> ArchDecisionResponse:
         return await self._attention_viz.architecture_decision(request)
+
+    # ── OAsst1 ─────────────────────────────────────────────────────────────
+
+    async def oasst1_download(self, request: OAsst1DownloadRequest) -> OAsst1DownloadResponse:
+        return await self._oasst1.download(request)
+
+    async def oasst1_ingest(self, request: OAsst1IngestionRequest) -> OAsst1IngestionResponse:
+        return await self._oasst1.ingest(request)
+
+    # ── LoRA ───────────────────────────────────────────────────────────────
+
+    async def lora_train(self, request: LoRATrainRequest) -> LoRATrainResponse:
+        return await self._lora.train(request)
+
+    async def lora_evaluate(self, request: LoRAEvalRequest) -> LoRAEvalResponse:
+        return await self._lora.evaluate(request)
+
+    async def lora_predict(self, request: LoRAPredictRequest) -> LoRAPredictResponse:
+        return await self._lora.predict(request)
+
+    async def lora_merge(self, request: LoRAMergeRequest) -> LoRAMergeResponse:
+        return await self._lora.merge(request)

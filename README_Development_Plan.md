@@ -180,15 +180,15 @@
 | **Libraries** | `peft`, `bitsandbytes`, `transformers` |
 | **Dataset** | OpenAssistant oasst1 · HuggingFace · ~1 GB |
 | **Input** | Instruction-response pairs formatted in ShareGPT / Alpaca style |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done · commit [WEEK7_SHA]` |
 
 **Intermediate Tasks**
 
-- [ ] Load Mistral-7B in 4-bit with `BitsAndBytesConfig`
-- [ ] Configure `LoraConfig` with `rank=16`
-- [ ] Freeze base weights — verify only adapter params train
-- [ ] Compare GPU memory: QLoRA vs full fine-tune
-- [ ] Log training loss curve
+- [x] Load Mistral-7B in 4-bit with `BitsAndBytesConfig`
+- [x] Configure `LoraConfig` with `rank=16`
+- [x] Freeze base weights — verify only adapter params train
+- [x] Compare GPU memory: QLoRA vs full fine-tune
+- [x] Log training loss curve
 
 **Outcome**
 
