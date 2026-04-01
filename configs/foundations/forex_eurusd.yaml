@@ -1,0 +1,19 @@
+foundations:
+  forex_eurusd:
+    data_dir: "data/forex"
+    years: [2019, 2020, 2021, 2022]
+    nrows: null
+    preprocess:
+      fill_gaps: true
+      normalize: true
+    tensor_ops:
+      volatility_window: 20
+      momentum_window: 14
+      inject_nan_fraction: 0.01
+    autograd:
+      window_size: 20
+
+  device:
+    prefer_gpu: true
+  reproducibility:
+    seed: 42

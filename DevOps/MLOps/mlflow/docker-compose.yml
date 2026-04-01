@@ -1,0 +1,24 @@
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.13.0
+    container_name: quantedge-mlflow
+    command: >
+      mlflow server
+        --backend-store-uri postgresql://quantedge:quantedge_dev@postgres:5432/quantedge
+        --default-artifact-root /mlflow/artifacts
+        --host 0.0.0.0
+        --port 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - quantedge_mlflow_artifacts:/mlflow/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Postgres runs in a separate compose — use external network or host networking
+    # For local dev, run postgres first: npm run infra:up
+    extra_hosts:
+      - "postgres:host-gateway"
+
+volumes:
+  quantedge_mlflow_artifacts:

@@ -1,0 +1,41 @@
+{
+  "name": "quantedge-enterprise-lab",
+  "version": "0.1.0",
+  "description": "QuantEdge AI Platform — operational scripts for the full enterprise stack",
+  "private": true,
+  "scripts": {
+    "setup:all": "npm run setup:python:env && npm run setup:portals",
+    "setup:python:env": "bash DevOps/Scripts/setup-python-env.sh",
+    "setup:python:env:activate": "echo 'Run in your shell: conda activate ~/runtime_data/python_venvs/PyTorchMastery/PyTorch-Enterprise-Lab-CXA-2026'",
+    "setup:python:env:deactivate": "echo 'Run in your shell: conda deactivate'",
+    "setup:portals": "cd portals/quantedge-portal-customer && npm install && cd ../quantedge-portal-admin && npm install",
+
+    "app:api:start": "bash DevOps/Scripts/app-api.sh start",
+    "app:api:stop": "bash DevOps/Scripts/app-api.sh stop",
+    "app:api:status": "bash DevOps/Scripts/app-api.sh status",
+
+    "app:portal:customer:start": "bash DevOps/Scripts/app-portal.sh customer start",
+    "app:portal:customer:stop": "bash DevOps/Scripts/app-portal.sh customer stop",
+    "app:portal:customer:status": "bash DevOps/Scripts/app-portal.sh customer status",
+
+    "app:portal:admin:start": "bash DevOps/Scripts/app-portal.sh admin start",
+    "app:portal:admin:stop": "bash DevOps/Scripts/app-portal.sh admin stop",
+    "app:portal:admin:status": "bash DevOps/Scripts/app-portal.sh admin status",
+
+    "app:all:start": "bash DevOps/Scripts/docker-all-up.sh",
+    "app:all:stop": "bash DevOps/Scripts/docker-all-down.sh",
+    "app:all:status": "bash DevOps/Scripts/docker-all-status.sh",
+
+    "infra:up": "bash DevOps/Scripts/docker-all-up.sh",
+    "infra:down": "bash DevOps/Scripts/docker-all-down.sh",
+    "infra:status": "bash DevOps/Scripts/docker-all-status.sh",
+
+    "test": "bash DevOps/Scripts/run-tests.sh",
+    "lint": "ruff check src/ tests/",
+    "format": "ruff format src/ tests/"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

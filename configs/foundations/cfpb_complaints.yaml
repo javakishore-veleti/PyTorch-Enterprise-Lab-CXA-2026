@@ -1,0 +1,26 @@
+foundations:
+  cfpb_complaints:
+    cache_dir: "data/cfpb"
+    split: "train"
+    streaming: false
+    preprocess:
+      model_name: "distilbert-base-uncased"
+      max_length: 256
+      batch_size: 1000
+    dataloader:
+      batch_size: 32
+      num_workers: 4
+      pin_memory: true
+      val_split: 0.1
+    training:
+      model_name: "distilbert-base-uncased"
+      epochs: 3
+      learning_rate: 2.0e-5
+      seed: 42
+      checkpoint_dir: "data/checkpoints/cfpb"
+      resume_from: null
+
+  device:
+    prefer_gpu: true
+  reproducibility:
+    seed: 42
