@@ -48,6 +48,15 @@ from quantedge_services.services.wfs.lora_finetuning.tasks.lora_eval_task import
 from quantedge_services.services.wfs.lora_finetuning.tasks.lora_predict_task import LoRAPredictTask
 from quantedge_services.services.wfs.lora_finetuning.tasks.lora_merge_task import LoRAMergeTask
 from quantedge_services.services.wfs.lora_finetuning.lora_service import LoRAService
+from quantedge_services.services.wfs.stackoverflow.tasks.download_task import StackOverflowDownloadTask
+from quantedge_services.services.wfs.stackoverflow.tasks.ingest_task import StackOverflowIngestionTask
+from quantedge_services.services.wfs.stackoverflow.stackoverflow_service import StackOverflowService
+from quantedge_services.services.wfs.domain_adaptation.tasks.domain_adapt_train_task import DomainAdaptTrainTask
+from quantedge_services.services.wfs.domain_adaptation.tasks.domain_adapt_eval_task import DomainAdaptEvalTask
+from quantedge_services.services.wfs.domain_adaptation.domain_adapt_service import DomainAdaptService
+from quantedge_services.services.wfs.ollama_serving.tasks.ollama_infer_task import OllamaInferTask
+from quantedge_services.services.wfs.ollama_serving.tasks.ollama_merge_task import OllamaMergeTask
+from quantedge_services.services.wfs.ollama_serving.ollama_service import OllamaService
 
 
 class DependencyContainer:
@@ -172,6 +181,30 @@ class DependencyContainer:
             merge_task=_lora_merge,
         )
 
+        # StackOverflow tasks + service
+        _so_download = StackOverflowDownloadTask()
+        _so_ingest = StackOverflowIngestionTask()
+        self.stackoverflow_service = StackOverflowService(
+            download_task=_so_download,
+            ingest_task=_so_ingest,
+        )
+
+        # Domain Adaptation tasks + service
+        _da_train = DomainAdaptTrainTask()
+        _da_eval = DomainAdaptEvalTask()
+        self.domain_adapt_service = DomainAdaptService(
+            train_task=_da_train,
+            eval_task=_da_eval,
+        )
+
+        # Ollama tasks + service
+        _ollama_infer = OllamaInferTask()
+        _ollama_merge = OllamaMergeTask()
+        self.ollama_service = OllamaService(
+            infer_task=_ollama_infer,
+            merge_task=_ollama_merge,
+        )
+
         # Facade
         self.foundations_facade = FoundationsServiceFacade(
             forex_service=self.forex_service,
@@ -184,6 +217,9 @@ class DependencyContainer:
             attention_viz_service=self.attention_viz_service,
             oasst1_service=self.oasst1_service,
             lora_service=self.lora_service,
+            stackoverflow_service=self.stackoverflow_service,
+            domain_adapt_service=self.domain_adapt_service,
+            ollama_service=self.ollama_service,
         )
 
 

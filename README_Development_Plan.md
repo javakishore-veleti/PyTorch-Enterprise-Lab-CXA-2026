@@ -204,7 +204,7 @@
 | **Libraries** | `peft`, `ollama`, `accelerate` |
 | **Dataset** | StackOverflow Java/ES dump · Kaggle · ~2 GB (filtered) |
 | **Input** | Java + Elasticsearch + Spring Boot Q&A pairs after domain filtering |
-| **Status** | `⬜ Not Started` |
+| **Status** | `✅ Done · commit <TBD>` |
 
 **Intermediate Tasks**
 

@@ -57,6 +57,17 @@ from quantedge_services.api.schemas.foundations.lora_schemas import (
 )
 from quantedge_services.services.wfs.oasst1.oasst1_service import OAsst1Service
 from quantedge_services.services.wfs.lora_finetuning.lora_service import LoRAService
+from quantedge_services.api.schemas.foundations.domain_adapt_schemas import (
+    StackOverflowDownloadRequest, StackOverflowDownloadResult,
+    StackOverflowIngestionRequest, StackOverflowIngestionResult,
+    DomainAdaptTrainRequest, DomainAdaptTrainResult,
+    DomainAdaptEvalRequest, DomainAdaptEvalResult,
+    OllamaInferRequest, OllamaInferResult,
+    OllamaMergeRequest, OllamaMergeResult,
+)
+from quantedge_services.services.wfs.stackoverflow.stackoverflow_service import StackOverflowService
+from quantedge_services.services.wfs.domain_adaptation.domain_adapt_service import DomainAdaptService
+from quantedge_services.services.wfs.ollama_serving.ollama_service import OllamaService
 
 
 class FoundationsServiceFacade:
@@ -79,6 +90,9 @@ class FoundationsServiceFacade:
         attention_viz_service: AttentionVizService,
         oasst1_service: OAsst1Service,
         lora_service: LoRAService,
+        stackoverflow_service: StackOverflowService,
+        domain_adapt_service: DomainAdaptService,
+        ollama_service: OllamaService,
     ) -> None:
         self._forex = forex_service
         self._cfpb = cfpb_service
@@ -90,6 +104,9 @@ class FoundationsServiceFacade:
         self._attention_viz = attention_viz_service
         self._oasst1 = oasst1_service
         self._lora = lora_service
+        self._stackoverflow = stackoverflow_service
+        self._domain_adapt = domain_adapt_service
+        self._ollama = ollama_service
         self._logger = StructuredLogger(name=__name__)
 
     # ── Forex ──────────────────────────────────────────────────────────────
@@ -209,3 +226,39 @@ class FoundationsServiceFacade:
 
     async def lora_merge(self, request: LoRAMergeRequest) -> LoRAMergeResponse:
         return await self._lora.merge(request)
+
+    # ── StackOverflow ──────────────────────────────────────────────────────────
+
+    async def submit_stackoverflow_download(
+        self, request: StackOverflowDownloadRequest
+    ) -> StackOverflowDownloadResult:
+        return await self._stackoverflow.download(request)
+
+    async def submit_stackoverflow_ingest(
+        self, request: StackOverflowIngestionRequest
+    ) -> StackOverflowIngestionResult:
+        return await self._stackoverflow.ingest(request)
+
+    # ── Domain Adaptation ──────────────────────────────────────────────────────
+
+    async def submit_domain_adapt_train(
+        self, request: DomainAdaptTrainRequest
+    ) -> DomainAdaptTrainResult:
+        return await self._domain_adapt.train(request)
+
+    async def submit_domain_adapt_eval(
+        self, request: DomainAdaptEvalRequest
+    ) -> DomainAdaptEvalResult:
+        return await self._domain_adapt.evaluate(request)
+
+    # ── Ollama ─────────────────────────────────────────────────────────────────
+
+    async def submit_ollama_infer(
+        self, request: OllamaInferRequest
+    ) -> OllamaInferResult:
+        return await self._ollama.infer(request)
+
+    async def submit_ollama_merge(
+        self, request: OllamaMergeRequest
+    ) -> OllamaMergeResult:
+        return await self._ollama.merge(request)

@@ -1,0 +1,20 @@
+domain_adaptation:
+  base_model: "gpt2"
+  lora_rank: 16
+  lora_alpha: 32
+  target_modules: ["c_attn", "c_proj"]
+  max_steps: 100
+  batch_size: 4
+  learning_rate: 2.0e-4
+
+ollama:
+  base_url: "http://localhost:11434"
+  default_model: "llama3"
+  max_tokens: 256
+  temperature: 0.7
+  timeout_seconds: 30
+
+stackoverflow:
+  dataset_source: "kaggle"
+  tags_filter: ["java", "python"]
+  output_dir: "data/stackoverflow"

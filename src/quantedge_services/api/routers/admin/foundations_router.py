@@ -30,6 +30,11 @@ from quantedge_services.api.schemas.foundations.lora_schemas import (
     OAsst1DownloadRequest, OAsst1IngestionRequest,
     LoRATrainRequest, LoRAEvalRequest, LoRAPredictRequest, LoRAMergeRequest,
 )
+from quantedge_services.api.schemas.foundations.domain_adapt_schemas import (
+    StackOverflowDownloadRequest, StackOverflowIngestionRequest,
+    DomainAdaptTrainRequest, DomainAdaptEvalRequest,
+    OllamaInferRequest, OllamaMergeRequest,
+)
 from quantedge_services.core.jobs import JobRegistry, JobStatus
 from quantedge_services.services.facade.foundations_facade import FoundationsServiceFacade
 
@@ -96,6 +101,13 @@ class FoundationsAdminRouter:
         self.router.post("/lora/evaluate",    response_model=JobSubmittedResponse, status_code=202)(self.lora_evaluate)
         self.router.post("/lora/predict",     response_model=JobSubmittedResponse, status_code=202)(self.lora_predict)
         self.router.post("/lora/merge",       response_model=JobSubmittedResponse, status_code=202)(self.lora_merge)
+
+        self.router.post("/stackoverflow/download", response_model=JobSubmittedResponse, status_code=202)(self.stackoverflow_download)
+        self.router.post("/stackoverflow/ingest",   response_model=JobSubmittedResponse, status_code=202)(self.stackoverflow_ingest)
+        self.router.post("/domain-adapt/train",     response_model=JobSubmittedResponse, status_code=202)(self.domain_adapt_train)
+        self.router.post("/domain-adapt/evaluate",  response_model=JobSubmittedResponse, status_code=202)(self.domain_adapt_eval)
+        self.router.post("/ollama/infer",            response_model=JobSubmittedResponse, status_code=202)(self.ollama_infer)
+        self.router.post("/ollama/merge",            response_model=JobSubmittedResponse, status_code=202)(self.ollama_merge)
 
     async def _run_job(self, job_id: str, method: Callable, *args: Any) -> None:
         """Runs an async service method, updates registry with result or error."""
@@ -290,4 +302,34 @@ class FoundationsAdminRouter:
     async def lora_merge(self, request: LoRAMergeRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
         job = self._registry.create("lora_merge")
         bg.add_task(self._run_job, job.id, self._facade.lora_merge, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def stackoverflow_download(self, request: StackOverflowDownloadRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("stackoverflow_download")
+        bg.add_task(self._run_job, job.id, self._facade.submit_stackoverflow_download, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def stackoverflow_ingest(self, request: StackOverflowIngestionRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("stackoverflow_ingest")
+        bg.add_task(self._run_job, job.id, self._facade.submit_stackoverflow_ingest, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def domain_adapt_train(self, request: DomainAdaptTrainRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("domain_adapt_train")
+        bg.add_task(self._run_job, job.id, self._facade.submit_domain_adapt_train, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def domain_adapt_eval(self, request: DomainAdaptEvalRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("domain_adapt_eval")
+        bg.add_task(self._run_job, job.id, self._facade.submit_domain_adapt_eval, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def ollama_infer(self, request: OllamaInferRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("ollama_infer")
+        bg.add_task(self._run_job, job.id, self._facade.submit_ollama_infer, request)
+        return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
+
+    async def ollama_merge(self, request: OllamaMergeRequest, bg: BackgroundTasks) -> JobSubmittedResponse:
+        job = self._registry.create("ollama_merge")
+        bg.add_task(self._run_job, job.id, self._facade.submit_ollama_merge, request)
         return JobSubmittedResponse(job_id=job.id, task_name=job.task_name)
