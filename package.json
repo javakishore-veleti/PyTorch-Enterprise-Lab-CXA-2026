@@ -30,6 +30,8 @@
     "infra:down": "bash DevOps/Scripts/docker-all-down.sh",
     "infra:status": "bash DevOps/Scripts/docker-all-status.sh",
 
+    "handson": "conda run --prefix ~/runtime_data/python_venvs/PyTorchMastery/PyTorch-Enterprise-Lab-CXA-2026 python -m quantedge_services_handson.run",
+
     "test": "bash DevOps/Scripts/run-tests.sh",
     "lint": "ruff check src/ tests/",
     "format": "ruff format src/ tests/"

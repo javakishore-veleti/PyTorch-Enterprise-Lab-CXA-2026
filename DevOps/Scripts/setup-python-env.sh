@@ -25,7 +25,15 @@ fi
 
 echo "==> Installing Python dependencies with uv..."
 conda run --prefix "${VENV_PATH}" pip install uv
-conda run --prefix "${VENV_PATH}" uv pip install -e ".[dev,gpu,mlops]"
+
+# onnxruntime-gpu has no macOS ARM wheels — skip gpu extras on Darwin
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  EXTRAS="dev,mlops"
+  echo "    macOS detected — skipping [gpu] extras (no ARM wheels for onnxruntime-gpu)"
+else
+  EXTRAS="dev,gpu,mlops"
+fi
+conda run --prefix "${VENV_PATH}" uv pip install -e ".[${EXTRAS}]"
 
 echo ""
 echo "✅ Setup complete. To activate:"
